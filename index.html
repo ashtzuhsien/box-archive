@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Box Archive — 蔬果紙箱視覺典藏</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0ece4;
+  --surface: #faf8f4;
+  --surface2: #ece8e0;
+  --surface3: #e4e0d8;
+  --border: #ccc8c0;
+  --border-light: #dedad2;
+  --text: #1a1917;
+  --text-muted: #6a6760;
+  --text-hint: #9c9890;
+  --accent: #1a1917;
+  --check: #5a7a5a;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  background: var(--surface);
+  border-bottom: 0.5px solid var(--border);
+  padding: 0 28px;
+  height: 50px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 200;
+}
+.nav-brand { display: flex; align-items: baseline; gap: 10px; }
+.nav-title { font-size: 15px; letter-spacing: 0.01em; color: var(--text); }
+.nav-sub { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); letter-spacing: 0.06em; }
+.nav-right { display: flex; gap: 8px; align-items: center; }
+.nav-tab {
+  font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
+  padding: 5px 14px; border: 0.5px solid var(--border);
+  border-radius: 2px; background: transparent; cursor: pointer;
+  color: var(--text-muted); transition: all 0.12s;
+}
+.nav-tab:hover { background: var(--surface2); }
+.nav-tab.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── UPLOAD PAGE: two-panel ── */
+.two-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 50px);
+}
+.panel {
+  padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.panel-left { border-right: 0.5px solid var(--border); }
+.panel-right { overflow-y: auto; }
+
+.section-label {
+  font-family: 'Courier New', monospace;
+  font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-hint); border-bottom: 0.5px solid var(--border-light);
+  padding-bottom: 7px;
+}
+.section-label-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Courier New', monospace;
+  font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-hint); border-bottom: 0.5px solid var(--border-light);
+  padding-bottom: 7px;
+}
+
+/* ── CANVAS STAGE ── */
+.canvas-wrap {
+  position: relative;
+  background: var(--surface2);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: crosshair;
+  flex: 1; min-height: 260px;
+  display: flex; align-items: center; justify-content: center;
+}
+.canvas-wrap canvas { display: block; max-width: 100%; max-height: 100%; }
+#main-canvas { position: absolute; top: 0; left: 0; }
+#select-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; }
+
+.drop-hint {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; pointer-events: none;
+}
+.dh-icon { font-size: 32px; opacity: 0.4; }
+.dh-text { font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-hint); }
+.dh-hint { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); opacity: 0.7; }
+
+/* ── CONTROLS BELOW CANVAS ── */
+.canvas-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cc-btn {
+  font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.04em;
+  padding: 6px 14px; border: 0.5px solid var(--border);
+  border-radius: 2px; background: var(--surface); color: var(--text-muted);
+  cursor: pointer; transition: all 0.12s;
+}
+.cc-btn:hover { background: var(--surface2); color: var(--text); }
+.cc-btn.primary { background: var(--text); color: var(--surface); border-color: var(--text); }
+.cc-btn.primary:hover { opacity: 0.85; }
+.cc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+input[type=file] { display: none; }
+
+/* ── RIGHT PANEL: result editor ── */
+.result-area {
+  flex: 1; display: flex; flex-direction: column; gap: 0;
+}
+
+/* preview box */
+.preview-box {
+  border: 0.5px solid var(--border); border-radius: 6px;
+  overflow: hidden; background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 180px; position: relative;
+}
+.checker {
+  background-image:
+    linear-gradient(45deg, #ccc8c0 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc8c0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc8c0 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc8c0 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 0 7px, 7px -7px, -7px 0px;
+  background-color: #dedad2;
+  position: absolute; inset: 0;
+}
+#result-canvas { position: relative; z-index: 1; max-width: 100%; max-height: 240px; }
+.preview-empty {
+  font-family: 'Courier New', monospace; font-size: 10px;
+  color: var(--text-hint); text-align: center; line-height: 1.8;
+  position: relative; z-index: 1;
+}
+
+/* sliders */
+.sliders { display: flex; flex-direction: column; gap: 10px; }
+.slider-row { display: flex; align-items: center; gap: 10px; }
+.slider-lbl {
+  font-family: 'Courier New', monospace; font-size: 9px;
+  color: var(--text-muted); width: 60px; flex-shrink: 0; letter-spacing: 0.04em;
+}
+.slider-lbl span { color: var(--text-hint); font-size: 8px; margin-left: 2px; }
+input[type=range] {
+  flex: 1; height: 2px; accent-color: var(--text);
+  cursor: pointer;
+}
+.slider-val {
+  font-family: 'Courier New', monospace; font-size: 9px;
+  color: var(--text-muted); width: 32px; text-align: right; flex-shrink: 0;
+}
+
+/* bg removal */
+.bg-row { display: flex; align-items: center; gap: 10px; }
+.toggle-label {
+  font-family: 'Courier New', monospace; font-size: 9px;
+  color: var(--text-muted); letter-spacing: 0.04em;
+}
+.toggle {
+  position: relative; width: 32px; height: 18px;
+  background: var(--surface3); border: 0.5px solid var(--border);
+  border-radius: 9px; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--text); border-color: var(--text); }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 10px; height: 10px; border-radius: 50%; background: var(--text-hint);
+  transition: all 0.2s;
+}
+.toggle.on::after { left: 17px; background: var(--surface); }
+
+/* action row */
+.action-row { display: flex; gap: 8px; }
+.action-btn {
+  flex: 1; padding: 10px 0;
+  font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
+  border: 0.5px solid var(--border); border-radius: 2px;
+  background: var(--surface); color: var(--text-muted); cursor: pointer;
+  transition: all 0.12s;
+}
+.action-btn:hover { background: var(--surface2); color: var(--text); }
+.action-btn.save { background: var(--text); color: var(--surface); border-color: var(--text); }
+.action-btn.save:hover { opacity: 0.85; }
+.action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── COLLECTION PAGE ── */
+.coll-page { padding: 28px 28px; }
+.coll-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.coll-title { font-size: 20px; color: var(--text); }
+.coll-meta { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); }
+.coll-tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+.c-tab {
+  padding: 7px 20px;
+  font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-hint); cursor: pointer;
+  border-bottom: 1px solid transparent; margin-bottom: -0.5px;
+  transition: all 0.12s;
+}
+.c-tab:hover { color: var(--text); }
+.c-tab.active { color: var(--text); border-bottom-color: var(--text); }
+.coll-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.coll-card {
+  border: 0.5px solid var(--border); border-radius: 5px;
+  overflow: hidden; background: var(--surface); cursor: pointer;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.coll-card:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+.coll-card-img {
+  aspect-ratio: 1; position: relative; overflow: hidden;
+}
+.coll-checker {
+  background-image:
+    linear-gradient(45deg, #ccc8c0 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc8c0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc8c0 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc8c0 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+  background-color: #dedad2;
+  position: absolute; inset: 0;
+}
+.coll-card-img canvas { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; display: block; }
+.coll-card-body { padding: 8px 10px; border-top: 0.5px solid var(--border-light); }
+.coll-card-name { font-family: 'Courier New', monospace; font-size: 10px; color: var(--text); margin-bottom: 4px; }
+.coll-card-meta { display: flex; align-items: center; justify-content: space-between; }
+.coll-card-date { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-hint); }
+.coll-dl { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-muted); cursor: pointer; padding: 2px 0; }
+.coll-dl:hover { color: var(--text); }
+.coll-empty { padding: 60px 0; text-align: center; font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-hint); line-height: 2; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--text); color: var(--surface);
+  font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
+  padding: 8px 22px; border-radius: 2px; opacity: 0;
+  transition: all 0.18s; pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  nav { padding: 0 16px; }
+  .nav-sub { display: none; }
+  .two-panel { grid-template-columns: 1fr; }
+  .panel-left { border-right: none; border-bottom: 0.5px solid var(--border); }
+  .panel { padding: 18px 16px; }
+  .coll-page { padding: 18px 16px; }
+  .coll-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-title">Box Archive</div>
+    <div class="nav-sub">蔬果紙箱視覺典藏</div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-tab active" id="tab-upload" onclick="showPage('upload',this)">Upload</button>
+    <button class="nav-tab" id="tab-collection" onclick="showPage('collection',this)">Collection</button>
+  </div>
+</nav>
+
+<!-- UPLOAD PAGE -->
+<div class="page active" id="page-upload">
+  <div class="two-panel">
+
+    <!-- LEFT: image + selection -->
+    <div class="panel panel-left">
+      <div class="section-label">01 — 上傳圖片，框選目標</div>
+
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="main-canvas"></canvas>
+        <canvas id="select-canvas"></canvas>
+        <div class="drop-hint" id="drop-hint">
+          <div class="dh-icon">📦</div>
+          <div class="dh-text">拖曳或點擊上傳</div>
+          <div class="dh-hint">JPG · PNG · HEIC</div>
+        </div>
+      </div>
+      <input type="file" id="file-input" accept="image/*">
+
+      <div class="canvas-controls">
+        <button class="cc-btn" onclick="document.getElementById('file-input').click()">選擇圖片</button>
+        <button class="cc-btn" id="clear-sel-btn" onclick="clearSelection()" disabled>清除選取</button>
+        <button class="cc-btn primary" id="crop-btn" onclick="cropSelection()" disabled>裁切選取區域 →</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: edit + export -->
+    <div class="panel panel-right">
+      <div class="section-label-row">
+        <span>02 — 調整與匯出</span>
+        <span id="crop-size-lbl" style="font-size:8px;color:var(--text-hint);font-family:'Courier New',monospace;"></span>
+      </div>
+
+      <!-- preview -->
+      <div class="preview-box">
+        <div class="checker"></div>
+        <canvas id="result-canvas"></canvas>
+        <div class="preview-empty" id="preview-empty">框選圖片中的目標區域<br>裁切後在此預覽</div>
+      </div>
+
+      <!-- bg removal toggle -->
+      <div class="bg-row" style="margin-top:4px;">
+        <span class="toggle-label">自動去背</span>
+        <div class="toggle" id="bg-toggle" onclick="toggleBg()"></div>
+        <span style="font-family:'Courier New',monospace;font-size:8px;color:var(--text-hint);">顏色閾值</span>
+        <input type="range" id="tolerance-slider" min="10" max="120" value="40" style="flex:1;max-width:100px;" oninput="applyEdits()">
+        <span class="slider-val" id="tolerance-val">40</span>
+      </div>
+
+      <!-- sliders -->
+      <div class="sliders">
+        <div class="slider-row">
+          <div class="slider-lbl">亮度 <span>brightness</span></div>
+          <input type="range" id="brightness" min="50" max="200" value="100" oninput="applyEdits()">
+          <div class="slider-val" id="brightness-val">100</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-lbl">對比 <span>contrast</span></div>
+          <input type="range" id="contrast" min="50" max="200" value="100" oninput="applyEdits()">
+          <div class="slider-val" id="contrast-val">100</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-lbl">飽和度 <span>saturation</span></div>
+          <input type="range" id="saturation" min="0" max="300" value="100" oninput="applyEdits()">
+          <div class="slider-val" id="saturation-val">100</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-lbl">旋轉 <span>rotate</span></div>
+          <input type="range" id="rotate" min="-180" max="180" value="0" oninput="applyEdits()">
+          <div class="slider-val" id="rotate-val">0°</div>
+        </div>
+      </div>
+
+      <!-- reset + actions -->
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="cc-btn" id="reset-btn" onclick="resetEdits()" disabled style="font-size:9px;">重置調整</button>
+      </div>
+
+      <!-- name input -->
+      <div>
+        <div style="font-family:'Courier New',monospace;font-size:8.5px;color:var(--text-hint);letter-spacing:0.1em;margin-bottom:6px;">命名</div>
+        <input type="text" id="item-name" placeholder="例：農場 Logo、有機認證章" style="width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:2px;background:var(--surface);font-family:'Courier New',monospace;font-size:11px;color:var(--text);outline:none;" onfocus="this.style.borderColor='var(--text-muted)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn save" id="save-btn" onclick="saveToCollection()" disabled>存入 Collection</button>
+        <button class="action-btn" id="dl-btn" onclick="downloadResult()" disabled>下載 PNG</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTION PAGE -->
+<div class="page" id="page-collection">
+  <div class="coll-page">
+    <div class="coll-header">
+      <div class="coll-title">Collection</div>
+      <div class="coll-meta" id="coll-meta">0 items</div>
+    </div>
+    <div class="coll-tabs">
+      <div class="c-tab active" data-f="all" onclick="setCTab(this)">All</div>
+      <div class="c-tab" data-f="icon" onclick="setCTab(this)">Icons</div>
+      <div class="c-tab" data-f="text" onclick="setCTab(this)">Text / Brand</div>
+    </div>
+    <div class="coll-grid" id="coll-grid"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ───────── state ───────── */
+let srcImage = null;          // original Image object
+let cropData = null;          // { x,y,w,h } in source image px
+let croppedCanvas = null;     // raw crop (before edits)
+let bgRemoveOn = false;
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+let selRect = null;           // { x,y,w,h } in display coords
+let collFilter = 'all';
+
+const mainCanvas   = document.getElementById('main-canvas');
+const selCanvas    = document.getElementById('select-canvas');
+const resultCanvas = document.getElementById('result-canvas');
+const mainCtx      = mainCanvas.getContext('2d');
+const selCtx       = selCanvas.getContext('2d');
+const resultCtx    = resultCanvas.getContext('2d');
+
+/* ───────── page nav ───────── */
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (name === 'collection') renderCollection();
+}
+
+/* ───────── file load ───────── */
+const wrap = document.getElementById('canvas-wrap');
+wrap.addEventListener('click', () => { if (!srcImage) document.getElementById('file-input').click(); });
+wrap.addEventListener('dragover', e => { e.preventDefault(); });
+wrap.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) loadFile(f); });
+document.getElementById('file-input').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      srcImage = img;
+      document.getElementById('drop-hint').style.display = 'none';
+      selCanvas.style.cursor = 'crosshair';
+      fitAndDraw();
+      clearSelection();
+      resetEdits();
+      clearResult();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function fitAndDraw() {
+  const wrapW = wrap.clientWidth;
+  const wrapH = wrap.clientHeight || 360;
+  const ratio = Math.min(wrapW / srcImage.width, wrapH / srcImage.height, 1);
+  const dw = Math.round(srcImage.width * ratio);
+  const dh = Math.round(srcImage.height * ratio);
+  mainCanvas.width = selCanvas.width = dw;
+  mainCanvas.height = selCanvas.height = dh;
+  mainCanvas.style.width = selCanvas.style.width = dw + 'px';
+  mainCanvas.style.height = selCanvas.style.height = dh + 'px';
+  mainCtx.drawImage(srcImage, 0, 0, dw, dh);
+}
+
+/* ───────── selection drawing ───────── */
+selCanvas.addEventListener('mousedown', startSel);
+selCanvas.addEventListener('mousemove', moveSel);
+selCanvas.addEventListener('mouseup', endSel);
+selCanvas.addEventListener('mouseleave', endSel);
+selCanvas.addEventListener('touchstart', e => { e.preventDefault(); startSel(e.touches[0]); }, { passive: false });
+selCanvas.addEventListener('touchmove', e => { e.preventDefault(); moveSel(e.touches[0]); }, { passive: false });
+selCanvas.addEventListener('touchend', e => { e.preventDefault(); endSel(e.changedTouches[0]); }, { passive: false });
+
+function getPos(e) {
+  const r = selCanvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function startSel(e) {
+  if (!srcImage) return;
+  isDragging = true;
+  dragStart = getPos(e);
+  selRect = null;
+  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+}
+
+function moveSel(e) {
+  if (!isDragging) return;
+  const pos = getPos(e);
+  const x = Math.min(dragStart.x, pos.x);
+  const y = Math.min(dragStart.y, pos.y);
+  const w = Math.abs(pos.x - dragStart.x);
+  const h = Math.abs(pos.y - dragStart.y);
+  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+  selCtx.fillStyle = 'rgba(255,255,255,0.12)';
+  selCtx.fillRect(x, y, w, h);
+  selCtx.strokeStyle = 'rgba(255,255,255,0.9)';
+  selCtx.lineWidth = 1;
+  selCtx.setLineDash([4, 3]);
+  selCtx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  selCtx.setLineDash([]);
+  // corner marks
+  const cs = 8;
+  selCtx.strokeStyle = 'rgba(255,255,255,1)';
+  selCtx.lineWidth = 1.5;
+  [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(([cx,cy]) => {
+    selCtx.beginPath();
+    selCtx.moveTo(cx - (cx===x?0:cs), cy);
+    selCtx.lineTo(cx + (cx===x?cs:0), cy);
+    selCtx.moveTo(cx, cy - (cy===y?0:cs));
+    selCtx.lineTo(cx, cy + (cy===y?cs:0));
+    selCtx.stroke();
+  });
+}
+
+function endSel(e) {
+  if (!isDragging) return;
+  isDragging = false;
+  const pos = getPos(e);
+  const x = Math.min(dragStart.x, pos.x);
+  const y = Math.min(dragStart.y, pos.y);
+  const w = Math.abs(pos.x - dragStart.x);
+  const h = Math.abs(pos.y - dragStart.y);
+  if (w > 8 && h > 8) {
+    selRect = { x, y, w, h };
+    document.getElementById('crop-btn').disabled = false;
+    document.getElementById('clear-sel-btn').disabled = false;
+  }
+}
+
+function clearSelection() {
+  selRect = null;
+  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+  document.getElementById('crop-btn').disabled = true;
+  document.getElementById('clear-sel-btn').disabled = true;
+}
+
+/* ───────── crop ───────── */
+function cropSelection() {
+  if (!selRect || !srcImage) return;
+  const scaleX = srcImage.width / mainCanvas.width;
+  const scaleY = srcImage.height / mainCanvas.height;
+  cropData = {
+    x: Math.round(selRect.x * scaleX),
+    y: Math.round(selRect.y * scaleY),
+    w: Math.round(selRect.w * scaleX),
+    h: Math.round(selRect.h * scaleY)
+  };
+  // draw raw crop to temp canvas
+  croppedCanvas = document.createElement('canvas');
+  croppedCanvas.width = cropData.w;
+  croppedCanvas.height = cropData.h;
+  croppedCanvas.getContext('2d').drawImage(srcImage, cropData.x, cropData.y, cropData.w, cropData.h, 0, 0, cropData.w, cropData.h);
+  document.getElementById('crop-size-lbl').textContent = cropData.w + ' × ' + cropData.h + ' px';
+  document.getElementById('preview-empty').style.display = 'none';
+  document.getElementById('save-btn').disabled = false;
+  document.getElementById('dl-btn').disabled = false;
+  document.getElementById('reset-btn').disabled = false;
+  applyEdits();
+}
+
+function clearResult() {
+  cropData = null; croppedCanvas = null;
+  resultCanvas.width = 1; resultCanvas.height = 1;
+  document.getElementById('preview-empty').style.display = 'block';
+  document.getElementById('save-btn').disabled = true;
+  document.getElementById('dl-btn').disabled = true;
+  document.getElementById('reset-btn').disabled = true;
+  document.getElementById('crop-size-lbl').textContent = '';
+}
+
+/* ───────── edits ───────── */
+function toggleBg() {
+  bgRemoveOn = !bgRemoveOn;
+  document.getElementById('bg-toggle').className = 'toggle' + (bgRemoveOn ? ' on' : '');
+  applyEdits();
+}
+
+function applyEdits() {
+  if (!croppedCanvas) return;
+  const brightness = parseInt(document.getElementById('brightness').value);
+  const contrast   = parseInt(document.getElementById('contrast').value);
+  const saturation = parseInt(document.getElementById('saturation').value);
+  const angle      = parseInt(document.getElementById('rotate').value);
+  const tolerance  = parseInt(document.getElementById('tolerance-slider').value);
+  document.getElementById('brightness-val').textContent = brightness;
+  document.getElementById('contrast-val').textContent   = contrast;
+  document.getElementById('saturation-val').textContent = saturation;
+  document.getElementById('rotate-val').textContent     = angle + '°';
+  document.getElementById('tolerance-val').textContent  = tolerance;
+
+  // 1. rotate source crop
+  const rad = angle * Math.PI / 180;
+  const ow = croppedCanvas.width, oh = croppedCanvas.height;
+  const rw = Math.ceil(Math.abs(ow*Math.cos(rad)) + Math.abs(oh*Math.sin(rad)));
+  const rh = Math.ceil(Math.abs(ow*Math.sin(rad)) + Math.abs(oh*Math.cos(rad)));
+  const rotC = document.createElement('canvas');
+  rotC.width = rw; rotC.height = rh;
+  const rotCtx = rotC.getContext('2d');
+  rotCtx.translate(rw/2, rh/2);
+  rotCtx.rotate(rad);
+  rotCtx.drawImage(croppedCanvas, -ow/2, -oh/2);
+  rotCtx.setTransform(1,0,0,1,0,0);
+
+  // 2. get pixel data
+  const imgData = rotCtx.getImageData(0, 0, rw, rh);
+  const d = imgData.data;
+
+  // 3. bg removal (sample corner pixels as bg color)
+  if (bgRemoveOn) {
+    const samples = [
+      [d[0],d[1],d[2]],
+      [d[(rw-1)*4], d[(rw-1)*4+1], d[(rw-1)*4+2]],
+      [d[(rh-1)*rw*4], d[(rh-1)*rw*4+1], d[(rh-1)*rw*4+2]],
+      [d[((rh-1)*rw + rw-1)*4], d[((rh-1)*rw + rw-1)*4+1], d[((rh-1)*rw + rw-1)*4+2]]
+    ];
+    const bgR = Math.round(samples.reduce((s,c)=>s+c[0],0)/4);
+    const bgG = Math.round(samples.reduce((s,c)=>s+c[1],0)/4);
+    const bgB = Math.round(samples.reduce((s,c)=>s+c[2],0)/4);
+    for (let i = 0; i < d.length; i += 4) {
+      const dr = d[i]-bgR, dg = d[i+1]-bgG, db = d[i+2]-bgB;
+      const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+      if (dist < tolerance) {
+        const t = Math.max(0, 1 - (tolerance - dist) / 20);
+        d[i+3] = Math.round(255 * t);
+      }
+    }
+  }
+
+  // 4. brightness / contrast / saturation
+  const bAdj = (brightness - 100) * 2.55;
+  const cAdj = contrast / 100;
+  const sAdj = saturation / 100;
+  for (let i = 0; i < d.length; i += 4) {
+    if (bgRemoveOn && d[i+3] === 0) continue;
+    let r = d[i], g = d[i+1], b = d[i+2];
+    // brightness
+    r += bAdj; g += bAdj; b += bAdj;
+    // contrast
+    r = (r - 128) * cAdj + 128;
+    g = (g - 128) * cAdj + 128;
+    b = (b - 128) * cAdj + 128;
+    // saturation (via luminance)
+    const lum = 0.299*r + 0.587*g + 0.114*b;
+    r = lum + (r - lum) * sAdj;
+    g = lum + (g - lum) * sAdj;
+    b = lum + (b - lum) * sAdj;
+    d[i]   = Math.max(0, Math.min(255, Math.round(r)));
+    d[i+1] = Math.max(0, Math.min(255, Math.round(g)));
+    d[i+2] = Math.max(0, Math.min(255, Math.round(b)));
+  }
+
+  resultCanvas.width = rw;
+  resultCanvas.height = rh;
+  resultCtx.putImageData(imgData, 0, 0);
+}
+
+function resetEdits() {
+  document.getElementById('brightness').value = 100;
+  document.getElementById('contrast').value   = 100;
+  document.getElementById('saturation').value = 100;
+  document.getElementById('rotate').value     = 0;
+  document.getElementById('tolerance-slider').value = 40;
+  bgRemoveOn = false;
+  document.getElementById('bg-toggle').className = 'toggle';
+  if (croppedCanvas) applyEdits();
+}
+
+/* ───────── download ───────── */
+function downloadResult() {
+  if (!resultCanvas.width) return;
+  const name = (document.getElementById('item-name').value || 'box-element').replace(/\s+/g,'_');
+  const dataUrl = resultCanvas.toDataURL('image/png');
+  // try native download
+  try {
+    const a = document.createElement('a');
+    a.href = dataUrl; a.download = name + '.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  } catch(e) {}
+  // always show inline fallback (useful in sandboxed preview)
+  showDownloadPanel(dataUrl, name);
+}
+
+function showDownloadPanel(dataUrl, name) {
+  let panel = document.getElementById('dl-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'dl-panel';
+    panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:0.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:16px;z-index:500;';
+    document.body.appendChild(panel);
+  }
+  panel.innerHTML = `
+    <span style="font-family:'Courier New',monospace;font-size:10px;color:var(--text-muted);">右鍵圖片→另存新檔，或長按儲存：</span>
+    <img src="${dataUrl}" style="height:52px;border:0.5px solid var(--border);border-radius:3px;background:#dedad2;" title="${name}.png">
+    <a href="${dataUrl}" download="${name}.png" style="font-family:'Courier New',monospace;font-size:10px;padding:6px 16px;background:var(--text);color:var(--surface);border-radius:2px;text-decoration:none;">↓ ${name}.png</a>
+    <span onclick="document.getElementById('dl-panel').remove()" style="font-family:'Courier New',monospace;font-size:10px;color:var(--text-hint);cursor:pointer;margin-left:auto;">✕ 關閉</span>
+  `;
+}
+
+/* ───────── collection ───────── */
+function getCollection() {
+  try { return JSON.parse(localStorage.getItem('ba_v2_coll') || '[]'); } catch { return []; }
+}
+function saveCollectionData(items) { localStorage.setItem('ba_v2_coll', JSON.stringify(items)); }
+
+function saveToCollection() {
+  if (!resultCanvas.width) return;
+  const name = document.getElementById('item-name').value.trim() || '未命名元素';
+  const coll = getCollection();
+  coll.unshift({
+    id: Date.now(),
+    name,
+    dataUrl: resultCanvas.toDataURL('image/png'),
+    w: resultCanvas.width,
+    h: resultCanvas.height,
+    ts: new Date().toLocaleDateString('zh-TW')
+  });
+  saveCollectionData(coll);
+  toast('已存入 Collection — ' + name);
+  document.getElementById('item-name').value = '';
+}
+
+function renderCollection(filter) {
+  if (filter) collFilter = filter;
+  const coll = getCollection();
+  document.getElementById('coll-meta').textContent = coll.length + ' items';
+  const grid = document.getElementById('coll-grid');
+  grid.innerHTML = '';
+  if (coll.length === 0) {
+    grid.innerHTML = '<div class="coll-empty">Collection 目前是空的。<br>裁切並調整圖片後存入。</div>';
+    return;
+  }
+  coll.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'coll-card';
+    const cid = 'cc-' + item.id;
+    card.innerHTML = `
+      <div class="coll-card-img">
+        <div class="coll-checker"></div>
+        <canvas id="${cid}"></canvas>
+      </div>
+      <div class="coll-card-body">
+        <div class="coll-card-name">${item.name}</div>
+        <div class="coll-card-meta">
+          <span class="coll-card-date">${item.ts}</span>
+          <span class="coll-dl" onclick="dlFromCollection('${item.id}')">↓ PNG</span>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+    setTimeout(() => {
+      const c = document.getElementById(cid);
+      if (!c) return;
+      const img = new Image();
+      img.onload = () => {
+        c.width = c.parentElement.clientWidth || 150;
+        c.height = c.width;
+        const ctx = c.getContext('2d');
+        const scale = Math.min(c.width/img.width, c.height/img.height);
+        const dw = img.width*scale, dh = img.height*scale;
+        ctx.drawImage(img, (c.width-dw)/2, (c.height-dh)/2, dw, dh);
+      };
+      img.src = item.dataUrl;
+    }, 60);
+  });
+}
+
+function dlFromCollection(id) {
+  const coll = getCollection();
+  const item = coll.find(i => String(i.id) === String(id));
+  if (!item) return;
+  const name = item.name.replace(/\s+/g,'_');
+  try {
+    const a = document.createElement('a');
+    a.href = item.dataUrl; a.download = name + '.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  } catch(e) {}
+  showDownloadPanel(item.dataUrl, name);
+}
+
+function setCTab(tab) {
+  document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  renderCollection(tab.dataset.f);
+}
+
+/* ───────── toast ───────── */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+</script>
+</body>
+</html>
