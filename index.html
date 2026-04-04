@@ -31,15 +31,21 @@ nav {
 }
 .nav-tab:hover { background: var(--surface2); }
 .nav-tab.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+.nick-badge {
+  font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint);
+  padding: 4px 10px; border: 0.5px solid var(--border-light); border-radius: 2px;
+  cursor: pointer;
+}
+.nick-badge:hover { color: var(--text-muted); }
 
 .page { display: none; }
 .page.active { display: block; }
 
+/* two-panel */
 .two-panel { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 50px); }
 .panel { padding: 22px 26px; display: flex; flex-direction: column; gap: 14px; }
 .panel-left { border-right: 0.5px solid var(--border); }
 .panel-right { overflow-y: auto; }
-
 .sec-lbl {
   font-family: 'Courier New', monospace; font-size: 8.5px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--text-hint);
@@ -47,21 +53,22 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
 }
 
-/* canvas area */
-.canvas-wrap {
+/* ── STAGE ── */
+.stage-wrap {
   position: relative; background: var(--surface2);
   border: 0.5px solid var(--border); border-radius: 6px;
-  overflow: hidden; flex: 1; min-height: 260px;
+  overflow: hidden; flex: 1; min-height: 280px;
   display: flex; align-items: center; justify-content: center;
 }
-#main-canvas { position: absolute; top: 0; left: 0; display: block; }
-#select-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; display: block; }
+#stage-canvas { position: absolute; top: 0; left: 0; display: block; }
+#ui-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; display: block; }
 .drop-hint { display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
 .dh-icon { font-size: 32px; opacity: 0.35; }
 .dh-text { font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-hint); }
 .dh-hint { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); opacity: 0.7; }
 
-.ctrl-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+/* mode bar */
+.mode-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .btn {
   font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.04em;
   padding: 6px 14px; border: 0.5px solid var(--border); border-radius: 2px;
@@ -71,6 +78,7 @@ nav {
 .btn.primary { background: var(--text); color: var(--surface); border-color: var(--text); }
 .btn.primary:hover { opacity: 0.85; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.mode-hint { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-hint); }
 input[type=file] { display: none; }
 
 /* preview */
@@ -90,28 +98,20 @@ input[type=file] { display: none; }
   text-align: center; line-height: 1.8; position: relative; z-index: 1;
 }
 
-/* section blocks */
-.edit-section {
-  border: 0.5px solid var(--border-light); border-radius: 5px;
-  background: var(--surface); overflow: hidden;
-}
+/* edit sections */
+.edit-section { border: 0.5px solid var(--border-light); border-radius: 5px; background: var(--surface); overflow: hidden; }
 .edit-section-head {
-  font-family: 'Courier New', monospace; font-size: 8px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text-hint); padding: 7px 12px;
-  background: var(--surface2); border-bottom: 0.5px solid var(--border-light);
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; user-select: none;
+  font-family: 'Courier New', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-hint); padding: 7px 12px; background: var(--surface2);
+  border-bottom: 0.5px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;
 }
 .edit-section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 9px; }
-
-/* sliders */
 .slider-row { display: flex; align-items: center; gap: 8px; }
-.slider-lbl { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-muted); width: 68px; flex-shrink: 0; line-height: 1.3; }
+.slider-lbl { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-muted); width: 72px; flex-shrink: 0; line-height: 1.4; }
 .slider-lbl small { display: block; font-size: 7.5px; color: var(--text-hint); }
 input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: pointer; }
 .slider-val { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-muted); width: 36px; text-align: right; flex-shrink: 0; }
-
-/* toggle */
 .toggle-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .toggle-lbl { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-muted); }
 .toggle {
@@ -124,8 +124,6 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
   width: 10px; height: 10px; border-radius: 50%; background: var(--text-hint); transition: all 0.2s;
 }
 .toggle.on::after { left: 17px; background: var(--surface); }
-
-/* bg method tabs */
 .method-tabs { display: flex; border: 0.5px solid var(--border); border-radius: 2px; overflow: hidden; }
 .method-tab {
   flex: 1; padding: 5px 0; font-family: 'Courier New', monospace; font-size: 8.5px;
@@ -135,7 +133,6 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .method-tab:last-child { border-right: none; }
 .method-tab.active { background: var(--text); color: var(--surface); }
 
-/* action */
 .action-row { display: flex; gap: 8px; }
 .action-btn {
   flex: 1; padding: 10px 0; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
@@ -146,8 +143,6 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .action-btn.save { background: var(--text); color: var(--surface); border-color: var(--text); }
 .action-btn.save:hover { opacity: 0.85; }
 .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-/* name input */
 .name-input {
   width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: 2px;
   background: var(--surface); font-family: 'Courier New', monospace; font-size: 11px;
@@ -168,10 +163,10 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 }
 .c-tab:hover { color: var(--text); }
 .c-tab.active { color: var(--text); border-bottom-color: var(--text); }
-.coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; }
+.coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; }
 .coll-card {
   border: 0.5px solid var(--border); border-radius: 5px; overflow: hidden;
-  background: var(--surface); cursor: pointer; transition: border-color 0.12s, transform 0.12s;
+  background: var(--surface); transition: border-color 0.12s, transform 0.12s;
 }
 .coll-card:hover { border-color: var(--text-muted); transform: translateY(-1px); }
 .coll-card-img { aspect-ratio: 1; position: relative; overflow: hidden; }
@@ -180,14 +175,38 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
   background-size: 10px 10px; background-position: 0 0,0 5px,5px -5px,-5px 0;
   background-color: #dedad2; position: absolute; inset: 0;
 }
-.coll-card-img canvas { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; display: block; }
-.coll-card-body { padding: 8px 10px; border-top: 0.5px solid var(--border-light); }
-.coll-card-name { font-family: 'Courier New', monospace; font-size: 10px; color: var(--text); margin-bottom: 4px; }
-.coll-card-meta { display: flex; align-items: center; justify-content: space-between; }
+.coll-card-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; display: block; }
+.coll-card-body { padding: 9px 11px; border-top: 0.5px solid var(--border-light); }
+.coll-card-name { font-family: 'Courier New', monospace; font-size: 10px; font-weight: bold; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coll-card-uploader { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-hint); margin-bottom: 2px; }
 .coll-card-date { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-hint); }
-.coll-dl { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-muted); cursor: pointer; }
-.coll-dl:hover { color: var(--text); }
+.coll-card-dl { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-muted); cursor: pointer; float: right; }
+.coll-card-dl:hover { color: var(--text); }
 .coll-empty { padding: 60px 0; text-align: center; font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-hint); line-height: 2; }
+.coll-loading { padding: 40px 0; text-align: center; font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-hint); }
+
+/* modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(26,25,23,0.6); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; width: 340px;
+}
+.modal-title { font-size: 15px; margin-bottom: 6px; }
+.modal-desc { font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.7; }
+.modal-input {
+  width: 100%; padding: 9px 12px; border: 0.5px solid var(--border); border-radius: 3px;
+  font-family: 'Courier New', monospace; font-size: 12px; background: var(--bg);
+  color: var(--text); outline: none; margin-bottom: 14px;
+}
+.modal-input:focus { border-color: var(--text-muted); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-cancel { padding: 7px 16px; border: 0.5px solid var(--border); border-radius: 2px; background: transparent; color: var(--text-muted); font-family: 'Courier New', monospace; font-size: 10px; cursor: pointer; }
+.modal-save { padding: 7px 18px; border: none; border-radius: 2px; background: var(--text); color: var(--surface); font-family: 'Courier New', monospace; font-size: 10px; cursor: pointer; }
 
 .toast {
   position: fixed; bottom: 24px; left: 50%;
@@ -200,13 +219,13 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (max-width: 700px) {
-  nav { padding: 0 16px; }
+  nav { padding: 0 14px; }
   .nav-sub { display: none; }
   .two-panel { grid-template-columns: 1fr; }
-  .panel-left { border-right: none; border-bottom: 0.5px solid var(--border); }
-  .panel { padding: 18px 16px; }
-  .coll-page { padding: 18px 16px; }
-  .coll-grid { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); }
+  .panel-left { border-right: none; border-bottom: 0.5px solid var(--border); min-height: 60vh; }
+  .panel { padding: 16px; }
+  .coll-page { padding: 16px; }
+  .coll-grid { grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); }
 }
 </style>
 </head>
@@ -218,6 +237,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
     <div class="nav-sub">蔬果紙箱視覺典藏</div>
   </div>
   <div class="nav-right">
+    <div class="nick-badge" id="nick-badge" onclick="openNickModal()">👤 設定暱稱</div>
     <button class="nav-tab active" onclick="showPage('upload',this)">Upload</button>
     <button class="nav-tab" onclick="showPage('collection',this)">Collection</button>
   </div>
@@ -227,12 +247,16 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 <div class="page active" id="page-upload">
   <div class="two-panel">
 
-    <!-- LEFT -->
+    <!-- LEFT: stage -->
     <div class="panel panel-left">
-      <div class="sec-lbl">01 — 上傳圖片，框選目標</div>
-      <div class="canvas-wrap" id="canvas-wrap">
-        <canvas id="main-canvas"></canvas>
-        <canvas id="select-canvas"></canvas>
+      <div class="sec-lbl">
+        <span id="stage-label">01 — 上傳圖片</span>
+        <span id="stage-size" style="font-size:8px;color:var(--text-hint);"></span>
+      </div>
+
+      <div class="stage-wrap" id="stage-wrap">
+        <canvas id="stage-canvas"></canvas>
+        <canvas id="ui-canvas"></canvas>
         <div class="drop-hint" id="drop-hint">
           <div class="dh-icon">📦</div>
           <div class="dh-text">拖曳或點擊上傳</div>
@@ -240,102 +264,87 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
         </div>
       </div>
       <input type="file" id="file-input" accept="image/*">
-      <div class="ctrl-row">
+
+      <div class="mode-bar" id="mode-bar">
         <button class="btn" onclick="document.getElementById('file-input').click()">選擇圖片</button>
-        <button class="btn" id="clear-sel-btn" onclick="clearSelection()" disabled>清除選取</button>
-        <button class="btn primary" id="crop-btn" onclick="cropSelection()" disabled>裁切 →</button>
+        <button class="btn" id="clear-btn" onclick="clearSel()" disabled>清除選取</button>
+        <button class="btn primary" id="confirm-btn" onclick="confirmCrop()" disabled>確認裁切 →</button>
+        <div class="mode-hint" id="mode-hint"></div>
+      </div>
+
+      <!-- transform sliders shown only in crop-confirmed state -->
+      <div id="transform-panel" style="display:none;">
+        <div class="sec-lbl" style="margin-bottom:8px;">變形調整 <span style="font-size:8px;color:var(--text-hint);margin-left:6px;">調整後畫面自動裁正</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="slider-row">
+            <div class="slider-lbl">旋轉<small>rotate</small></div>
+            <input type="range" id="t-rotate" min="-45" max="45" value="0" step="0.5" oninput="updateTransform()">
+            <div class="slider-val" id="t-rotate-val">0°</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">水平修正<small>skew X</small></div>
+            <input type="range" id="t-skewx" min="-30" max="30" value="0" step="0.5" oninput="updateTransform()">
+            <div class="slider-val" id="t-skewx-val">0°</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">垂直修正<small>skew Y</small></div>
+            <input type="range" id="t-skewy" min="-30" max="30" value="0" step="0.5" oninput="updateTransform()">
+            <div class="slider-val" id="t-skewy-val">0°</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn" onclick="resetTransform()" style="font-size:8.5px;">重置變形</button>
+          <button class="btn primary" onclick="applyTransformAndCrop()" style="font-size:8.5px;">套用並送出 →</button>
+          <button class="btn" onclick="backToSelect()" style="font-size:8.5px;">重新框選</button>
+        </div>
       </div>
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT: adjust + export -->
     <div class="panel panel-right">
       <div class="sec-lbl">
         <span>02 — 調整與匯出</span>
         <span id="crop-size-lbl" style="font-size:8px;color:var(--text-hint);"></span>
       </div>
 
-      <!-- preview -->
       <div class="preview-box">
         <div class="checker"></div>
         <canvas id="result-canvas"></canvas>
-        <div class="preview-empty" id="preview-empty">框選目標區域後<br>在此預覽與調整</div>
+        <div class="preview-empty" id="preview-empty">框選目標 → 確認裁切 → 套用變形<br>結果在此預覽</div>
       </div>
 
-      <!-- BG REMOVAL -->
+      <!-- bg removal -->
       <div class="edit-section">
-        <div class="edit-section-head" onclick="toggleSection('bg-body','bg-arrow')">
-          <span>去背 — Background Removal</span>
-          <span id="bg-arrow">▾</span>
+        <div class="edit-section-head" onclick="toggleSec('bg-body','bg-arr')">
+          <span>去背 — Background Removal</span><span id="bg-arr">▾</span>
         </div>
         <div class="edit-section-body" id="bg-body">
           <div class="toggle-row">
             <span class="toggle-lbl">啟用去背</span>
             <div class="toggle" id="bg-toggle" onclick="toggleBg()"></div>
           </div>
-          <div id="bg-controls">
-            <div style="margin-bottom:8px;">
-              <div style="font-family:'Courier New',monospace;font-size:8px;color:var(--text-hint);margin-bottom:5px;">演算法</div>
-              <div class="method-tabs">
-                <div class="method-tab active" data-m="flood" onclick="setMethod(this)">Flood Fill</div>
-                <div class="method-tab" data-m="color" onclick="setMethod(this)">色彩閾值</div>
-                <div class="method-tab" data-m="edge" onclick="setMethod(this)">邊緣保留</div>
-              </div>
-            </div>
-            <div class="slider-row">
-              <div class="slider-lbl">容忍度<small>tolerance</small></div>
-              <input type="range" id="tolerance" min="5" max="150" value="35" step="1" oninput="applyEdits()">
-              <div class="slider-val" id="tolerance-val">35</div>
-            </div>
-            <div class="slider-row" id="feather-row">
-              <div class="slider-lbl">羽化<small>feather</small></div>
-              <input type="range" id="feather" min="0" max="20" value="3" step="1" oninput="applyEdits()">
-              <div class="slider-val" id="feather-val">3</div>
-            </div>
+          <div class="method-tabs">
+            <div class="method-tab active" data-m="flood" onclick="setMethod(this)">Flood Fill</div>
+            <div class="method-tab" data-m="color" onclick="setMethod(this)">色彩閾值</div>
+            <div class="method-tab" data-m="edge" onclick="setMethod(this)">邊緣保留</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">容忍度<small>tolerance</small></div>
+            <input type="range" id="tolerance" min="5" max="150" value="35" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="tolerance-val">35</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">羽化<small>feather</small></div>
+            <input type="range" id="feather" min="0" max="20" value="2" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="feather-val">2</div>
           </div>
         </div>
       </div>
 
-      <!-- TRANSFORM -->
+      <!-- color -->
       <div class="edit-section">
-        <div class="edit-section-head" onclick="toggleSection('tf-body','tf-arrow')">
-          <span>變形 — Transform</span>
-          <span id="tf-arrow">▾</span>
-        </div>
-        <div class="edit-section-body" id="tf-body">
-          <div class="slider-row">
-            <div class="slider-lbl">旋轉<small>rotate</small></div>
-            <input type="range" id="rotate" min="-180" max="180" value="0" step="1" oninput="applyEdits()">
-            <div class="slider-val" id="rotate-val">0°</div>
-          </div>
-          <div class="slider-row">
-            <div class="slider-lbl">X 軸傾斜<small>skew X</small></div>
-            <input type="range" id="skew-x" min="-60" max="60" value="0" step="1" oninput="applyEdits()">
-            <div class="slider-val" id="skew-x-val">0°</div>
-          </div>
-          <div class="slider-row">
-            <div class="slider-lbl">Y 軸傾斜<small>skew Y</small></div>
-            <input type="range" id="skew-y" min="-60" max="60" value="0" step="1" oninput="applyEdits()">
-            <div class="slider-val" id="skew-y-val">0°</div>
-          </div>
-          <div class="slider-row">
-            <div class="slider-lbl">透視 X<small>perspective X</small></div>
-            <input type="range" id="persp-x" min="-80" max="80" value="0" step="1" oninput="applyEdits()">
-            <div class="slider-val" id="persp-x-val">0</div>
-          </div>
-          <div class="slider-row">
-            <div class="slider-lbl">透視 Y<small>perspective Y</small></div>
-            <input type="range" id="persp-y" min="-80" max="80" value="0" step="1" oninput="applyEdits()">
-            <div class="slider-val" id="persp-y-val">0</div>
-          </div>
-          <button class="btn" style="font-size:8.5px;padding:5px 10px;align-self:flex-start;" onclick="resetTransform()">重置變形</button>
-        </div>
-      </div>
-
-      <!-- COLOR -->
-      <div class="edit-section">
-        <div class="edit-section-head" onclick="toggleSection('color-body','color-arrow')">
-          <span>色調 — Color Adjustments</span>
-          <span id="color-arrow">▾</span>
+        <div class="edit-section-head" onclick="toggleSec('color-body','color-arr')">
+          <span>色調 — Color</span><span id="color-arr">▾</span>
         </div>
         <div class="edit-section-body" id="color-body">
           <div class="slider-row">
@@ -362,7 +371,6 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
         </div>
       </div>
 
-      <!-- NAME + EXPORT -->
       <div>
         <div style="font-family:'Courier New',monospace;font-size:8px;color:var(--text-hint);letter-spacing:0.1em;margin-bottom:6px;text-transform:uppercase;">命名</div>
         <input class="name-input" type="text" id="item-name" placeholder="例：農場 Logo、有機認證章">
@@ -380,55 +388,103 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
   <div class="coll-page">
     <div class="coll-header">
       <div class="coll-title">Collection</div>
-      <div class="coll-meta" id="coll-meta">0 items</div>
+      <div class="coll-meta" id="coll-meta">載入中⋯</div>
     </div>
     <div class="coll-tabs">
       <div class="c-tab active" data-f="all" onclick="setCTab(this)">All</div>
-      <div class="c-tab" data-f="icon" onclick="setCTab(this)">Icons</div>
+      <div class="c-tab" data-f="icon" onclick="setCTab(this)">Icon</div>
       <div class="c-tab" data-f="text" onclick="setCTab(this)">Text / Brand</div>
     </div>
-    <div class="coll-grid" id="coll-grid"></div>
+    <div class="coll-grid" id="coll-grid"><div class="coll-loading">載入中⋯</div></div>
+  </div>
+</div>
+
+<!-- NICKNAME MODAL -->
+<div class="modal-overlay" id="nick-modal">
+  <div class="modal">
+    <div class="modal-title">設定暱稱</div>
+    <div class="modal-desc">你的暱稱會顯示在 Collection 中，讓大家知道是誰上傳的。</div>
+    <input class="modal-input" type="text" id="nick-input" placeholder="輸入暱稱（例：Ashley）" maxlength="30">
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeNickModal()">取消</button>
+      <button class="modal-save" onclick="saveNick()">確認</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ── state ── */
-let srcImage = null, cropData = null, croppedCanvas = null;
-let bgOn = false, bgMethod = 'flood';
-let selRect = null, isDragging = false, dragStart = {x:0,y:0};
+/* ── Supabase config ── */
+const SB_URL  = 'https://pjzetydqawhqmxuptoug.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqemV0eWRxYXdocW14dXB0b3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTE1MzYsImV4cCI6MjA5MDg4NzUzNn0.vJnd-ZNYFfCPVBFlrzxIZDq7GCls_gCgDJxv9DwoAJ0';
+const SB_HDR  = { 'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY, 'Content-Type': 'application/json' };
 
-const mainCanvas   = document.getElementById('main-canvas');
-const selCanvas    = document.getElementById('select-canvas');
-const resultCanvas = document.getElementById('result-canvas');
-const mainCtx      = mainCanvas.getContext('2d');
-const selCtx       = selCanvas.getContext('2d');
-const resultCtx    = resultCanvas.getContext('2d');
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SB_URL+path, { ...opts, headers: { ...SB_HDR, ...(opts.headers||{}) } });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json().catch(()=>({}));
+}
 
-/* ── nav ── */
+/* ── nickname ── */
+function getNick() { return localStorage.getItem('ba_nick') || ''; }
+function updateNickBadge() {
+  const n = getNick();
+  document.getElementById('nick-badge').textContent = n ? '👤 '+n : '👤 設定暱稱';
+}
+function openNickModal() {
+  document.getElementById('nick-input').value = getNick();
+  document.getElementById('nick-modal').classList.add('open');
+}
+function closeNickModal() { document.getElementById('nick-modal').classList.remove('open'); }
+function saveNick() {
+  const n = document.getElementById('nick-input').value.trim();
+  if (!n) { toast('請輸入暱稱'); return; }
+  localStorage.setItem('ba_nick', n);
+  updateNickBadge(); closeNickModal(); toast('暱稱已設定：'+n);
+}
+document.getElementById('nick-modal').addEventListener('click', e => { if (e.target===e.currentTarget) closeNickModal(); });
+updateNickBadge();
+
+/* ── page nav ── */
 function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  if (name==='collection') renderCollection();
+  if (name==='collection') loadCollection();
+}
+function toggleSec(bodyId, arrId) {
+  const b = document.getElementById(bodyId);
+  const hidden = b.style.display==='none';
+  b.style.display = hidden ? 'flex' : 'none';
+  document.getElementById(arrId).textContent = hidden ? '▾' : '▸';
 }
 
-function toggleSection(bodyId, arrowId) {
-  const body = document.getElementById(bodyId);
-  const arrow = document.getElementById(arrowId);
-  const hidden = body.style.display === 'none';
-  body.style.display = hidden ? 'flex' : 'none';
-  arrow.textContent = hidden ? '▾' : '▸';
-}
+/* ── state ── */
+let srcImage = null;          // original image
+let croppedCanvas = null;     // result of crop+transform, fed into color pipeline
+let transformCanvas = null;   // live transform preview (before final apply)
+let bgOn = false, bgMethod = 'flood';
+// selection
+let selRect = null, isDragging = false, dragStart = {x:0,y:0};
+// transform mode
+let inTransformMode = false;
+let pendingCropRect = null;   // { x,y,w,h } in source px, before transform
+
+const stageWrap   = document.getElementById('stage-wrap');
+const stageCanvas = document.getElementById('stage-canvas');
+const uiCanvas    = document.getElementById('ui-canvas');
+const resultCanvas= document.getElementById('result-canvas');
+const stageCtx    = stageCanvas.getContext('2d');
+const uiCtx       = uiCanvas.getContext('2d');
+const resultCtx   = resultCanvas.getContext('2d');
 
 /* ── file load ── */
-const wrap = document.getElementById('canvas-wrap');
-wrap.addEventListener('click', () => { if (!srcImage) document.getElementById('file-input').click(); });
-wrap.addEventListener('dragover', e => e.preventDefault());
-wrap.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f?.type.startsWith('image/')) loadFile(f); });
-document.getElementById('file-input').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+stageWrap.addEventListener('click', () => { if (!srcImage && !inTransformMode) document.getElementById('file-input').click(); });
+stageWrap.addEventListener('dragover', e => e.preventDefault());
+stageWrap.addEventListener('drop', e => { e.preventDefault(); const f=e.dataTransfer.files[0]; if(f?.type.startsWith('image/')) loadFile(f); });
+document.getElementById('file-input').addEventListener('change', e => { if(e.target.files[0]) loadFile(e.target.files[0]); });
 
 function loadFile(file) {
   const reader = new FileReader();
@@ -436,88 +492,235 @@ function loadFile(file) {
     const img = new Image();
     img.onload = () => {
       srcImage = img;
-      document.getElementById('drop-hint').style.display = 'none';
-      fitAndDraw(); clearSelection(); clearResult();
+      document.getElementById('drop-hint').style.display='none';
+      backToSelect();
     };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function fitAndDraw() {
-  const ww = wrap.clientWidth, wh = wrap.clientHeight || 360;
-  const ratio = Math.min(ww/srcImage.width, wh/srcImage.height, 1);
-  const dw = Math.round(srcImage.width*ratio), dh = Math.round(srcImage.height*ratio);
-  mainCanvas.width = selCanvas.width = dw;
-  mainCanvas.height = selCanvas.height = dh;
-  mainCanvas.style.cssText = selCanvas.style.cssText = `width:${dw}px;height:${dh}px;`;
-  mainCtx.drawImage(srcImage, 0, 0, dw, dh);
+function fitStage() {
+  const ww=stageWrap.clientWidth, wh=stageWrap.clientHeight||320;
+  const r=Math.min(ww/srcImage.width, wh/srcImage.height, 1);
+  const dw=Math.round(srcImage.width*r), dh=Math.round(srcImage.height*r);
+  stageCanvas.width=uiCanvas.width=dw;
+  stageCanvas.height=uiCanvas.height=dh;
+  stageCanvas.style.cssText=uiCanvas.style.cssText=`width:${dw}px;height:${dh}px;`;
+  stageCtx.drawImage(srcImage,0,0,dw,dh);
+  return {dw,dh,r};
 }
 
-/* ── selection ── */
+/* ── selection mode ── */
+function backToSelect() {
+  inTransformMode=false;
+  selRect=null; pendingCropRect=null;
+  document.getElementById('transform-panel').style.display='none';
+  document.getElementById('mode-bar').style.display='flex';
+  document.getElementById('stage-label').textContent='01 — 框選目標區域';
+  document.getElementById('mode-hint').textContent='拖曳框選後確認裁切';
+  document.getElementById('confirm-btn').disabled=true;
+  document.getElementById('clear-btn').disabled=true;
+  fitStage();
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+  uiCanvas.style.cursor='crosshair';
+}
+
 function getPos(e) {
-  const r = selCanvas.getBoundingClientRect();
-  return { x: (e.clientX||e.pageX) - r.left, y: (e.clientY||e.pageY) - r.top };
+  const r=uiCanvas.getBoundingClientRect();
+  const clientX=e.touches?e.touches[0].clientX:(e.clientX);
+  const clientY=e.touches?e.touches[0].clientY:(e.clientY);
+  return { x:clientX-r.left, y:clientY-r.top };
 }
-selCanvas.addEventListener('mousedown', e => { if(!srcImage) return; isDragging=true; dragStart=getPos(e); selRect=null; selCtx.clearRect(0,0,selCanvas.width,selCanvas.height); });
-selCanvas.addEventListener('mousemove', e => { if(!isDragging) return; drawSelRect(getPos(e)); });
-selCanvas.addEventListener('mouseup', e => { if(!isDragging) return; isDragging=false; finishSel(getPos(e)); });
-selCanvas.addEventListener('mouseleave', e => { if(isDragging) { isDragging=false; finishSel(getPos(e)); } });
-selCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!srcImage) return; isDragging=true; dragStart=getPos(e.touches[0]); selRect=null; selCtx.clearRect(0,0,selCanvas.width,selCanvas.height); }, {passive:false});
-selCanvas.addEventListener('touchmove', e => { e.preventDefault(); if(!isDragging) return; drawSelRect(getPos(e.touches[0])); }, {passive:false});
-selCanvas.addEventListener('touchend', e => { e.preventDefault(); if(!isDragging) return; isDragging=false; finishSel(getPos(e.changedTouches[0])); }, {passive:false});
 
-function drawSelRect(pos) {
-  const x=Math.min(dragStart.x,pos.x), y=Math.min(dragStart.y,pos.y);
-  const w=Math.abs(pos.x-dragStart.x), h=Math.abs(pos.y-dragStart.y);
-  selCtx.clearRect(0,0,selCanvas.width,selCanvas.height);
-  selCtx.fillStyle='rgba(255,255,255,0.1)'; selCtx.fillRect(x,y,w,h);
-  selCtx.strokeStyle='rgba(255,255,255,0.9)'; selCtx.lineWidth=1; selCtx.setLineDash([4,3]);
-  selCtx.strokeRect(x+0.5,y+0.5,w-1,h-1); selCtx.setLineDash([]);
-  const cs=8; selCtx.strokeStyle='white'; selCtx.lineWidth=1.5;
-  [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(([cx,cy])=>{
-    selCtx.beginPath();
-    selCtx.moveTo(cx-(cx===x?0:cs),cy); selCtx.lineTo(cx+(cx===x?cs:0),cy);
-    selCtx.moveTo(cx,cy-(cy===y?0:cs)); selCtx.lineTo(cx,cy+(cy===y?cs:0));
-    selCtx.stroke();
-  });
+uiCanvas.addEventListener('mousedown', onDown);
+uiCanvas.addEventListener('mousemove', onMove);
+uiCanvas.addEventListener('mouseup', onUp);
+uiCanvas.addEventListener('mouseleave', onUp);
+uiCanvas.addEventListener('touchstart', e=>{ e.preventDefault(); onDown(e); },{passive:false});
+uiCanvas.addEventListener('touchmove', e=>{ e.preventDefault(); onMove(e); },{passive:false});
+uiCanvas.addEventListener('touchend', e=>{ e.preventDefault(); onUp(e); },{passive:false});
+
+function onDown(e) {
+  if (!srcImage||inTransformMode) return;
+  isDragging=true; dragStart=getPos(e); selRect=null;
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
 }
-function finishSel(pos) {
+function onMove(e) {
+  if (!isDragging) return;
+  const pos=getPos(e);
+  drawSelOverlay(pos);
+}
+function onUp(e) {
+  if (!isDragging) return; isDragging=false;
+  const pos=getPos(e.changedTouches?{clientX:e.changedTouches[0].clientX,clientY:e.changedTouches[0].clientY}:e);
   const x=Math.min(dragStart.x,pos.x), y=Math.min(dragStart.y,pos.y);
   const w=Math.abs(pos.x-dragStart.x), h=Math.abs(pos.y-dragStart.y);
-  if (w>8 && h>8) {
+  if (w>8&&h>8) {
     selRect={x,y,w,h};
-    document.getElementById('crop-btn').disabled=false;
-    document.getElementById('clear-sel-btn').disabled=false;
+    document.getElementById('confirm-btn').disabled=false;
+    document.getElementById('clear-btn').disabled=false;
+    document.getElementById('mode-hint').textContent='選取完成，確認裁切';
   }
 }
-function clearSelection() {
-  selRect=null; selCtx.clearRect(0,0,selCanvas.width,selCanvas.height);
-  document.getElementById('crop-btn').disabled=true;
-  document.getElementById('clear-sel-btn').disabled=true;
+
+function drawSelOverlay(pos) {
+  const cw=uiCanvas.width, ch=uiCanvas.height;
+  const x=Math.min(dragStart.x,pos.x), y=Math.min(dragStart.y,pos.y);
+  const w=Math.abs(pos.x-dragStart.x), h=Math.abs(pos.y-dragStart.y);
+  uiCtx.clearRect(0,0,cw,ch);
+  // darken outside
+  uiCtx.fillStyle='rgba(0,0,0,0.45)';
+  uiCtx.fillRect(0,0,cw,ch);
+  uiCtx.clearRect(x,y,w,h);
+  // border
+  uiCtx.strokeStyle='rgba(255,255,255,0.9)'; uiCtx.lineWidth=1; uiCtx.setLineDash([4,3]);
+  uiCtx.strokeRect(x+0.5,y+0.5,w-1,h-1); uiCtx.setLineDash([]);
+  // corners
+  const cs=10; uiCtx.strokeStyle='white'; uiCtx.lineWidth=2;
+  [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(([cx,cy])=>{
+    uiCtx.beginPath();
+    uiCtx.moveTo(cx-(cx===x?0:cs),cy); uiCtx.lineTo(cx+(cx===x?cs:0),cy);
+    uiCtx.moveTo(cx,cy-(cy===y?0:cs)); uiCtx.lineTo(cx,cy+(cy===y?cs:0));
+    uiCtx.stroke();
+  });
 }
 
-/* ── crop ── */
-function cropSelection() {
+function clearSel() {
+  selRect=null;
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+  document.getElementById('confirm-btn').disabled=true;
+  document.getElementById('clear-btn').disabled=true;
+  document.getElementById('mode-hint').textContent='拖曳框選後確認裁切';
+}
+
+/* ── confirm crop → enter transform mode ── */
+function confirmCrop() {
   if (!selRect||!srcImage) return;
-  const sx=srcImage.width/mainCanvas.width, sy=srcImage.height/mainCanvas.height;
-  cropData = { x:Math.round(selRect.x*sx), y:Math.round(selRect.y*sy), w:Math.round(selRect.w*sx), h:Math.round(selRect.h*sy) };
+  const sx=srcImage.width/stageCanvas.width, sy=srcImage.height/stageCanvas.height;
+  pendingCropRect = {
+    x:Math.round(selRect.x*sx), y:Math.round(selRect.y*sy),
+    w:Math.round(selRect.w*sx), h:Math.round(selRect.h*sy)
+  };
+  inTransformMode=true;
+  document.getElementById('mode-bar').style.display='none';
+  document.getElementById('transform-panel').style.display='block';
+  document.getElementById('stage-label').textContent='02 — 調整變形（調整後裁正輸出）';
+  uiCanvas.style.cursor='default';
+  resetTransform();
+  renderTransformPreview();
+}
+
+/* ── transform preview on stage ── */
+function renderTransformPreview() {
+  if (!pendingCropRect||!srcImage) return;
+  const rotate = parseFloat(document.getElementById('t-rotate').value)||0;
+  const skewX  = parseFloat(document.getElementById('t-skewx').value)||0;
+  const skewY  = parseFloat(document.getElementById('t-skewy').value)||0;
+  document.getElementById('t-rotate-val').textContent = rotate.toFixed(1)+'°';
+  document.getElementById('t-skewx-val').textContent  = skewX.toFixed(1)+'°';
+  document.getElementById('t-skewy-val').textContent  = skewY.toFixed(1)+'°';
+
+  // draw full image dimmed
+  const {dw,dh} = fitStage();
+  stageCtx.drawImage(srcImage,0,0,dw,dh);
+  // dim full image
+  stageCtx.fillStyle='rgba(0,0,0,0.5)';
+  stageCtx.fillRect(0,0,dw,dh);
+
+  // draw crop region with transform, bright
+  const sx=srcImage.width/dw, sy=srcImage.height/dh;
+  const cr=pendingCropRect;
+  const dispX=cr.x/sx, dispY=cr.y/sy, dispW=cr.w/sx, dispH=cr.h/sy;
+  const cx=dispX+dispW/2, cy=dispY+dispH/2;
+
+  stageCtx.save();
+  stageCtx.translate(cx,cy);
+  stageCtx.rotate(rotate*Math.PI/180);
+  stageCtx.transform(1, Math.tan(skewY*Math.PI/180), Math.tan(skewX*Math.PI/180), 1, 0, 0);
+  stageCtx.drawImage(srcImage, cr.x, cr.y, cr.w, cr.h, -dispW/2, -dispH/2, dispW, dispH);
+
+  // show inner-rectangle crop outline
+  const maxR = Math.max(Math.abs(rotate), Math.abs(skewX)*0.5, Math.abs(skewY)*0.5);
+  const shrink = maxR * Math.PI / 180;
+  const iw = dispW * (1 - Math.abs(Math.sin(shrink))*0.6);
+  const ih = dispH * (1 - Math.abs(Math.sin(shrink))*0.6);
+  stageCtx.strokeStyle='rgba(255,255,255,0.8)';
+  stageCtx.lineWidth=1.5; stageCtx.setLineDash([4,3]);
+  stageCtx.strokeRect(-iw/2,-ih/2,iw,ih);
+  stageCtx.setLineDash([]);
+  stageCtx.restore();
+
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+}
+
+function updateTransform() { renderTransformPreview(); }
+
+function resetTransform() {
+  document.getElementById('t-rotate').value=0;
+  document.getElementById('t-skewx').value=0;
+  document.getElementById('t-skewy').value=0;
+  renderTransformPreview();
+}
+
+/* ── apply transform → produce croppedCanvas (straight rectangle) ── */
+function applyTransformAndCrop() {
+  if (!pendingCropRect||!srcImage) return;
+  const rotate = parseFloat(document.getElementById('t-rotate').value)||0;
+  const skewX  = parseFloat(document.getElementById('t-skewx').value)||0;
+  const skewY  = parseFloat(document.getElementById('t-skewy').value)||0;
+  const cr = pendingCropRect;
+
+  // draw crop region with transforms onto a temp canvas
+  const tmp = document.createElement('canvas');
+  tmp.width=cr.w; tmp.height=cr.h;
+  const tctx=tmp.getContext('2d');
+  tctx.save();
+  tctx.translate(cr.w/2, cr.h/2);
+  tctx.rotate(rotate*Math.PI/180);
+  tctx.transform(1, Math.tan(skewY*Math.PI/180), Math.tan(skewX*Math.PI/180), 1, 0, 0);
+  tctx.drawImage(srcImage, cr.x, cr.y, cr.w, cr.h, -cr.w/2, -cr.h/2, cr.w, cr.h);
+  tctx.restore();
+
+  // compute largest axis-aligned inner rectangle after rotation
+  const rad = Math.abs(rotate) * Math.PI/180;
+  const skXrad = Math.abs(skewX) * Math.PI/180 * 0.5;
+  const skYrad = Math.abs(skewY) * Math.PI/180 * 0.5;
+  const totalRad = rad + skXrad + skYrad;
+  let innerW, innerH;
+  if (totalRad === 0) {
+    innerW=cr.w; innerH=cr.h;
+  } else {
+    // largest inscribed rectangle for rotated image
+    const w=cr.w, h=cr.h;
+    const sinA=Math.sin(totalRad), cosA=Math.cos(totalRad);
+    if (w/h > 1) {
+      innerW = (w*cosA - h*sinA) / (cosA*cosA - sinA*sinA);
+      innerH = innerW * h/w;
+    } else {
+      innerH = (h*cosA - w*sinA) / (cosA*cosA - sinA*sinA);
+      innerW = innerH * w/h;
+    }
+    innerW = Math.max(10, Math.min(cr.w*0.95, Math.abs(innerW)));
+    innerH = Math.max(10, Math.min(cr.h*0.95, Math.abs(innerH)));
+  }
+
+  // crop centre of transformed image to innerW x innerH
   croppedCanvas = document.createElement('canvas');
-  croppedCanvas.width=cropData.w; croppedCanvas.height=cropData.h;
-  croppedCanvas.getContext('2d').drawImage(srcImage, cropData.x, cropData.y, cropData.w, cropData.h, 0, 0, cropData.w, cropData.h);
-  document.getElementById('crop-size-lbl').textContent = cropData.w+' × '+cropData.h+' px';
+  croppedCanvas.width  = Math.round(innerW);
+  croppedCanvas.height = Math.round(innerH);
+  const offX = (cr.w-innerW)/2, offY = (cr.h-innerH)/2;
+  croppedCanvas.getContext('2d').drawImage(tmp, offX, offY, innerW, innerH, 0, 0, innerW, innerH);
+
+  document.getElementById('crop-size-lbl').textContent = Math.round(innerW)+' × '+Math.round(innerH)+' px';
   document.getElementById('preview-empty').style.display='none';
   document.getElementById('save-btn').disabled=false;
   document.getElementById('dl-btn').disabled=false;
   applyEdits();
-}
-function clearResult() {
-  cropData=null; croppedCanvas=null;
-  resultCanvas.width=1; resultCanvas.height=1;
-  document.getElementById('preview-empty').style.display='block';
-  document.getElementById('save-btn').disabled=true;
-  document.getElementById('dl-btn').disabled=true;
-  document.getElementById('crop-size-lbl').textContent='';
+
+  // return to select mode so user can re-crop if needed
+  backToSelect();
+  toast('裁切完成，可繼續框選或調整右側色調');
 }
 
 /* ── bg removal ── */
@@ -531,256 +734,114 @@ function setMethod(tab) {
   tab.classList.add('active'); bgMethod=tab.dataset.m; applyEdits();
 }
 
-/* flood fill bg removal — samples from all 4 corners, BFS outward */
-function floodFillRemove(data, w, h, tolerance, feather) {
-  const visited = new Uint8Array(w*h);
-  const alpha   = new Float32Array(w*h).fill(1);
-  const queue   = [];
-
-  // sample bg colour from corners
-  const corners = [[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+function floodFillRemove(data, w, h, tol, feather) {
+  const visited=new Uint8Array(w*h), alpha=new Float32Array(w*h).fill(1), queue=[];
+  const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
   let bgR=0,bgG=0,bgB=0;
   corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
   bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
-
-  function colorDist(i) {
-    const dr=data[i]-bgR, dg=data[i+1]-bgG, db=data[i+2]-bgB;
-    return Math.sqrt(dr*dr+dg*dg+db*db);
-  }
-
-  // seed from borders
+  const dist=i=>{ const dr=data[i]-bgR,dg=data[i+1]-bgG,db=data[i+2]-bgB; return Math.sqrt(dr*dr+dg*dg+db*db); };
   for (let x=0;x<w;x++) { queue.push(x); queue.push((h-1)*w+x); }
   for (let y=1;y<h-1;y++) { queue.push(y*w); queue.push(y*w+w-1); }
   queue.forEach(p=>{ visited[p]=1; });
-
   while (queue.length) {
-    const p = queue.shift();
-    const x = p%w, y = Math.floor(p/w);
-    const dist = colorDist(p*4);
-    if (dist < tolerance) {
-      alpha[p] = 0;
-      const neighbors = [];
-      if (x>0) neighbors.push(p-1);
-      if (x<w-1) neighbors.push(p+1);
-      if (y>0) neighbors.push(p-w);
-      if (y<h-1) neighbors.push(p+w);
-      neighbors.forEach(n=>{ if (!visited[n]) { visited[n]=1; queue.push(n); } });
+    const p=queue.shift(), x=p%w, y=Math.floor(p/w);
+    if (dist(p*4)<tol) {
+      alpha[p]=0;
+      [p-1,p+1,p-w,p+w].forEach((n,i)=>{ if((i===0&&x>0)||(i===1&&x<w-1)||(i===2&&y>0)||(i===3&&y<h-1)) { if(!visited[n]) { visited[n]=1; queue.push(n); } } });
     }
   }
-
-  // feather: blur alpha at edges
-  if (feather>0) {
-    const a2 = new Float32Array(alpha);
-    for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-      const p=y*w+x;
-      if (alpha[p]>0 && alpha[p]<1) continue;
-      let sum=0, cnt=0;
-      for (let dy=-feather;dy<=feather;dy++) for (let dx=-feather;dx<=feather;dx++) {
-        const ny=y+dy, nx=x+dx;
-        if (ny>=0&&ny<h&&nx>=0&&nx<w) { sum+=alpha[ny*w+nx]; cnt++; }
-      }
-      a2[p]=sum/cnt;
-    }
-    for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(a2[i]*255);
-  } else {
-    for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(alpha[i]*255);
-  }
+  applyFeather(data,alpha,w,h,feather);
 }
 
-/* color threshold removal */
-function colorThresholdRemove(data, w, h, tolerance, feather) {
-  const corners = [[0,0],[w-1,0],[0,h-1],[w-1,h-1],[Math.floor(w/2),0],[0,Math.floor(h/2)]];
-  let bgR=0,bgG=0,bgB=0,cnt=0;
-  corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; cnt++; });
-  bgR=Math.round(bgR/cnt); bgG=Math.round(bgG/cnt); bgB=Math.round(bgB/cnt);
-  const alphas = new Float32Array(w*h);
+function colorThresholdRemove(data,w,h,tol,feather) {
+  const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+  let bgR=0,bgG=0,bgB=0;
+  corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
+  bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  const alpha=new Float32Array(w*h);
   for (let i=0;i<w*h;i++) {
-    const pi=i*4;
-    const dr=data[pi]-bgR, dg=data[pi+1]-bgG, db=data[pi+2]-bgB;
-    const dist=Math.sqrt(dr*dr+dg*dg+db*db);
-    alphas[i] = dist<tolerance ? Math.max(0, (dist/tolerance)) : 1;
+    const pi=i*4,dr=data[pi]-bgR,dg=data[pi+1]-bgG,db=data[pi+2]-bgB;
+    const d=Math.sqrt(dr*dr+dg*dg+db*db);
+    alpha[i]=d<tol?Math.max(0,d/tol):1;
   }
-  if (feather>0) {
-    const a2=new Float32Array(alphas);
-    for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-      const p=y*w+x; let sum=0,c=0;
-      for (let dy=-feather;dy<=feather;dy++) for (let dx=-feather;dx<=feather;dx++) {
-        const ny=y+dy,nx=x+dx;
-        if (ny>=0&&ny<h&&nx>=0&&nx<w) { sum+=alphas[ny*w+nx]; c++; }
-      }
-      a2[p]=sum/c;
-    }
-    for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(a2[i]*255);
-  } else {
-    for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(alphas[i]*255);
-  }
+  applyFeather(data,alpha,w,h,feather);
 }
 
-/* edge-preserving removal */
-function edgePreserveRemove(data, w, h, tolerance, feather) {
-  // first pass: color threshold
-  colorThresholdRemove(data, w, h, tolerance, 0);
-  // second pass: restore pixels near high-contrast edges
-  const orig = new Uint8ClampedArray(data);
-  const edge = detectEdges(orig, w, h);
-  for (let i=0;i<w*h;i++) {
-    if (edge[i]>30) data[i*4+3]=255; // restore edge pixels
-  }
-  if (feather>0) {
-    const alphas=new Float32Array(w*h);
-    for (let i=0;i<w*h;i++) alphas[i]=data[i*4+3]/255;
-    const a2=new Float32Array(alphas);
-    for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-      const p=y*w+x; let sum=0,c=0;
-      for (let dy=-feather;dy<=feather;dy++) for (let dx=-feather;dx<=feather;dx++) {
-        const ny=y+dy,nx=x+dx;
-        if (ny>=0&&ny<h&&nx>=0&&nx<w) { sum+=alphas[ny*w+nx]; c++; }
-      }
-      a2[p]=sum/c;
-    }
-    for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(a2[i]*255);
-  }
-}
-
-function detectEdges(data, w, h) {
-  const result=new Float32Array(w*h);
+function edgePreserveRemove(data,w,h,tol,feather) {
+  const orig=new Uint8ClampedArray(data);
+  colorThresholdRemove(data,w,h,tol,0);
   for (let y=1;y<h-1;y++) for (let x=1;x<w-1;x++) {
-    const idx=(y*w+x)*4;
-    const l=data[idx-4], r=data[idx+4], u=data[idx-w*4], d=data[idx+w*4];
-    result[y*w+x]=Math.abs(r-l)+Math.abs(d-u);
+    const i=(y*w+x)*4;
+    const ex=Math.abs(orig[i+4]-orig[i-4])+Math.abs(orig[i+1+4]-orig[i+1-4]);
+    const ey=Math.abs(orig[i+w*4]-orig[i-w*4])+Math.abs(orig[i+1+w*4]-orig[i+1-w*4]);
+    if (ex+ey>60) data[i+3]=255;
   }
-  return result;
+  if (feather>0) {
+    const alpha=new Float32Array(w*h);
+    for (let i=0;i<w*h;i++) alpha[i]=data[i*4+3]/255;
+    applyFeather(data,alpha,w,h,feather);
+  }
 }
 
-/* ── perspective transform via canvas ── */
-function applyPerspective(srcC, perspX, perspY) {
-  if (perspX===0 && perspY===0) return srcC;
-  const w=srcC.width, h=srcC.height;
-  const out=document.createElement('canvas');
-  out.width=w; out.height=h;
-  const ctx=out.getContext('2d');
-  // simulate perspective by drawing trapezoid
-  const px=perspX/100, py=perspY/100;
-  // src corners: TL, TR, BR, BL
-  // dst corners warped by perspective
-  const tl={x:Math.max(0,w*px/2),  y:Math.max(0,h*py/2)};
-  const tr={x:Math.min(w,w-w*px/2),y:Math.max(0,h*py/2)};
-  const br={x:Math.min(w,w-w*px/2),y:Math.min(h,h-h*py/2)};
-  const bl={x:Math.max(0,w*px/2),  y:Math.min(h,h-h*py/2)};
-  // draw in 4 triangular segments using canvas transforms
-  const img=new Image();
-  const tmp=document.createElement('canvas');
-  tmp.width=w; tmp.height=h;
-  tmp.getContext('2d').drawImage(srcC,0,0);
-  img.src=tmp.toDataURL();
-  // fallback: just drawImage with clip path approximation
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(tl.x,tl.y); ctx.lineTo(tr.x,tr.y);
-  ctx.lineTo(br.x,br.y); ctx.lineTo(bl.x,bl.y);
-  ctx.closePath(); ctx.clip();
-  // scale to fill the clipped region
-  ctx.drawImage(srcC,0,0,w,h);
-  ctx.restore();
-  return out;
+function applyFeather(data,alpha,w,h,feather) {
+  if (feather<=0) { for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(alpha[i]*255); return; }
+  const a2=new Float32Array(alpha);
+  const r=feather;
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
+    const p=y*w+x; let sum=0,cnt=0;
+    for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
+      const ny=y+dy,nx=x+dx;
+      if (ny>=0&&ny<h&&nx>=0&&nx<w) { sum+=alpha[ny*w+nx]; cnt++; }
+    }
+    a2[p]=sum/cnt;
+  }
+  for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(a2[i]*255);
 }
 
-/* ── apply skew via canvas transform ── */
-function applySkew(srcC, skewX, skewY) {
-  if (skewX===0 && skewY===0) return srcC;
-  const skXrad=skewX*Math.PI/180, skYrad=skewY*Math.PI/180;
-  const w=srcC.width, h=srcC.height;
-  const extraW=Math.abs(Math.tan(skXrad)*h), extraH=Math.abs(Math.tan(skYrad)*w);
-  const out=document.createElement('canvas');
-  out.width=Math.ceil(w+extraW); out.height=Math.ceil(h+extraH);
-  const ctx=out.getContext('2d');
-  ctx.translate(skewX>0?0:extraW, skewY>0?0:extraH);
-  ctx.transform(1, Math.tan(skYrad), Math.tan(skXrad), 1, 0, 0);
-  ctx.drawImage(srcC,0,0);
-  return out;
-}
-
-/* ── sharpen kernel ── */
-function applySharpen(data, w, h, amount) {
-  if (amount===0) return;
-  const copy=new Uint8ClampedArray(data);
-  const k=amount*0.3;
+function applySharpenKernel(data,w,h,amount) {
+  if (!amount) return;
+  const copy=new Uint8ClampedArray(data), k=amount*0.3;
   const kernel=[-k,-k,-k,-k,1+8*k,-k,-k,-k,-k];
   for (let y=1;y<h-1;y++) for (let x=1;x<w-1;x++) {
     const idx=(y*w+x)*4;
     for (let c=0;c<3;c++) {
-      let v=0, ki=0;
-      for (let dy=-1;dy<=1;dy++) for (let dx=-1;dx<=1;dx++, ki++) {
-        v+=copy[((y+dy)*w+(x+dx))*4+c]*kernel[ki];
-      }
+      let v=0,ki=0;
+      for (let dy=-1;dy<=1;dy++) for (let dx=-1;dx<=1;dx++,ki++) v+=copy[((y+dy)*w+(x+dx))*4+c]*kernel[ki];
       data[idx+c]=Math.max(0,Math.min(255,Math.round(v)));
     }
   }
 }
 
-/* ── main apply ── */
+/* ── main apply edits ── */
 function applyEdits() {
   if (!croppedCanvas) return;
+  const brightness=parseInt(document.getElementById('brightness').value);
+  const contrast  =parseInt(document.getElementById('contrast').value);
+  const saturation=parseInt(document.getElementById('saturation').value);
+  const sharpen   =parseInt(document.getElementById('sharpen').value);
+  const tol       =parseInt(document.getElementById('tolerance').value);
+  const feather   =parseInt(document.getElementById('feather').value);
+  document.getElementById('brightness-val').textContent=brightness;
+  document.getElementById('contrast-val').textContent=contrast;
+  document.getElementById('saturation-val').textContent=saturation;
+  document.getElementById('sharpen-val').textContent=sharpen;
+  document.getElementById('tolerance-val').textContent=tol;
+  document.getElementById('feather-val').textContent=feather;
 
-  const brightness = parseInt(document.getElementById('brightness').value);
-  const contrast   = parseInt(document.getElementById('contrast').value);
-  const saturation = parseInt(document.getElementById('saturation').value);
-  const sharpen    = parseInt(document.getElementById('sharpen').value);
-  const angle      = parseInt(document.getElementById('rotate').value);
-  const skewX      = parseInt(document.getElementById('skew-x').value);
-  const skewY      = parseInt(document.getElementById('skew-y').value);
-  const perspX     = parseInt(document.getElementById('persp-x').value);
-  const perspY     = parseInt(document.getElementById('persp-y').value);
-  const tolerance  = parseInt(document.getElementById('tolerance').value);
-  const feather    = parseInt(document.getElementById('feather').value);
+  const w=croppedCanvas.width, h=croppedCanvas.height;
+  const imgData=croppedCanvas.getContext('2d').getImageData(0,0,w,h);
+  const d=imgData.data;
 
-  document.getElementById('brightness-val').textContent = brightness;
-  document.getElementById('contrast-val').textContent   = contrast;
-  document.getElementById('saturation-val').textContent = saturation;
-  document.getElementById('sharpen-val').textContent    = sharpen;
-  document.getElementById('rotate-val').textContent     = angle+'°';
-  document.getElementById('skew-x-val').textContent     = skewX+'°';
-  document.getElementById('skew-y-val').textContent     = skewY+'°';
-  document.getElementById('persp-x-val').textContent    = perspX;
-  document.getElementById('persp-y-val').textContent    = perspY;
-  document.getElementById('tolerance-val').textContent  = tolerance;
-  document.getElementById('feather-val').textContent    = feather;
-
-  // 1. rotate
-  let cur = croppedCanvas;
-  if (angle!==0) {
-    const rad=angle*Math.PI/180;
-    const ow=cur.width, oh=cur.height;
-    const rw=Math.ceil(Math.abs(ow*Math.cos(rad))+Math.abs(oh*Math.sin(rad)));
-    const rh=Math.ceil(Math.abs(ow*Math.sin(rad))+Math.abs(oh*Math.cos(rad)));
-    const rc=document.createElement('canvas'); rc.width=rw; rc.height=rh;
-    const rctx=rc.getContext('2d');
-    rctx.translate(rw/2,rh/2); rctx.rotate(rad); rctx.drawImage(cur,-ow/2,-oh/2);
-    cur=rc;
-  }
-
-  // 2. skew
-  cur = applySkew(cur, skewX, skewY);
-
-  // 3. perspective
-  cur = applyPerspective(cur, perspX, perspY);
-
-  // 4. pixel ops
-  const imgData = cur.getContext('2d').getImageData(0,0,cur.width,cur.height);
-  const d = imgData.data;
-  const w = cur.width, h = cur.height;
-
-  // bg removal
   if (bgOn) {
-    if (bgMethod==='flood') floodFillRemove(d, w, h, tolerance, feather);
-    else if (bgMethod==='color') colorThresholdRemove(d, w, h, tolerance, feather);
-    else edgePreserveRemove(d, w, h, tolerance, feather);
+    if (bgMethod==='flood') floodFillRemove(d,w,h,tol,feather);
+    else if (bgMethod==='color') colorThresholdRemove(d,w,h,tol,feather);
+    else edgePreserveRemove(d,w,h,tol,feather);
   }
 
-  // color adjustments
   const bAdj=(brightness-100)*2.55, cAdj=contrast/100, sAdj=saturation/100;
   for (let i=0;i<d.length;i+=4) {
-    if (bgOn && d[i+3]===0) continue;
+    if (bgOn&&d[i+3]===0) continue;
     let r=d[i],g=d[i+1],b=d[i+2];
     r+=bAdj; g+=bAdj; b+=bAdj;
     r=(r-128)*cAdj+128; g=(g-128)*cAdj+128; b=(b-128)*cAdj+128;
@@ -790,19 +851,14 @@ function applyEdits() {
     d[i+1]=Math.max(0,Math.min(255,Math.round(g)));
     d[i+2]=Math.max(0,Math.min(255,Math.round(b)));
   }
-
-  // sharpen
-  if (sharpen>0) applySharpen(d, w, h, sharpen);
+  if (sharpen) applySharpenKernel(d,w,h,sharpen);
 
   resultCanvas.width=w; resultCanvas.height=h;
   resultCtx.putImageData(imgData,0,0);
 }
 
-function resetTransform() {
-  ['rotate','skew-x','skew-y','persp-x','persp-y'].forEach(id => { document.getElementById(id).value=0; });
-  applyEdits();
-}
 function resetColor() {
+  ['brightness','contrast','saturation','sharpen'].forEach(id=>{ document.getElementById(id).value=id==='saturation'?100:id==='brightness'?100:id==='contrast'?100:0; });
   document.getElementById('brightness').value=100;
   document.getElementById('contrast').value=100;
   document.getElementById('saturation').value=100;
@@ -815,85 +871,92 @@ function downloadResult() {
   if (!resultCanvas.width) return;
   const name=(document.getElementById('item-name').value||'box-element').replace(/\s+/g,'_');
   const dataUrl=resultCanvas.toDataURL('image/png');
-  try {
-    const a=document.createElement('a'); a.href=dataUrl; a.download=name+'.png';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  } catch(e) {}
+  try { const a=document.createElement('a'); a.href=dataUrl; a.download=name+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e) {}
   showDlPanel(dataUrl, name);
 }
 function showDlPanel(dataUrl, name) {
-  let panel=document.getElementById('dl-panel');
-  if (!panel) {
-    panel=document.createElement('div'); panel.id='dl-panel';
-    panel.style.cssText='position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:0.5px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:14px;z-index:500;';
-    document.body.appendChild(panel);
-  }
-  panel.innerHTML=`
-    <span style="font-family:'Courier New',monospace;font-size:9px;color:var(--text-muted);">右鍵另存 or 點下載：</span>
-    <img src="${dataUrl}" style="height:48px;border:0.5px solid var(--border);border-radius:3px;background:#dedad2;">
-    <a href="${dataUrl}" download="${name}.png" style="font-family:'Courier New',monospace;font-size:10px;padding:6px 16px;background:var(--text);color:var(--surface);border-radius:2px;text-decoration:none;">↓ ${name}.png</a>
-    <span onclick="document.getElementById('dl-panel').remove()" style="font-family:'Courier New',monospace;font-size:10px;color:var(--text-hint);cursor:pointer;margin-left:auto;">✕</span>`;
+  let p=document.getElementById('dl-panel');
+  if (!p) { p=document.createElement('div'); p.id='dl-panel'; p.style.cssText='position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:0.5px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:14px;z-index:500;'; document.body.appendChild(p); }
+  p.innerHTML=`<span style="font-family:'Courier New',monospace;font-size:9px;color:var(--text-muted);">右鍵另存 or 點下載：</span><img src="${dataUrl}" style="height:48px;border:0.5px solid var(--border);border-radius:3px;background:#dedad2;"><a href="${dataUrl}" download="${name}.png" style="font-family:'Courier New',monospace;font-size:10px;padding:6px 16px;background:var(--text);color:var(--surface);border-radius:2px;text-decoration:none;">↓ ${name}.png</a><span onclick="document.getElementById('dl-panel').remove()" style="font-family:'Courier New',monospace;font-size:10px;color:var(--text-hint);cursor:pointer;margin-left:auto;">✕</span>`;
 }
 
-/* ── collection ── */
-function getCollection() { try { return JSON.parse(localStorage.getItem('ba_v3')||'[]'); } catch { return []; } }
-function saveCollectionData(items) { localStorage.setItem('ba_v3', JSON.stringify(items)); }
-
-function saveToCollection() {
+/* ── save to Supabase ── */
+async function saveToCollection() {
   if (!resultCanvas.width) return;
-  const name=document.getElementById('item-name').value.trim()||'未命名元素';
-  const coll=getCollection();
-  coll.unshift({ id:Date.now(), name, dataUrl:resultCanvas.toDataURL('image/png'), ts:new Date().toLocaleDateString('zh-TW') });
-  saveCollectionData(coll);
-  toast('已存入 Collection — '+name);
-  document.getElementById('item-name').value='';
+  const nick = getNick();
+  if (!nick) { openNickModal(); toast('請先設定暱稱再存入'); return; }
+  const name = document.getElementById('item-name').value.trim() || '未命名元素';
+  const btn  = document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='儲存中⋯';
+  try {
+    await sbFetch('/rest/v1/elements', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        name,
+        uploader: nick,
+        image_data: resultCanvas.toDataURL('image/png'),
+        tags: 'icon'
+      })
+    });
+    toast('已存入 Collection — '+name);
+    document.getElementById('item-name').value='';
+  } catch(err) {
+    toast('儲存失敗：'+err.message);
+  } finally {
+    btn.disabled=false; btn.textContent='存入 Collection';
+  }
 }
 
-function renderCollection() {
-  const coll=getCollection();
-  document.getElementById('coll-meta').textContent=coll.length+' items';
+/* ── load collection ── */
+let collFilter='all';
+async function loadCollection() {
+  document.getElementById('coll-grid').innerHTML='<div class="coll-loading">載入中⋯</div>';
+  try {
+    const data = await sbFetch('/rest/v1/elements?select=*&order=created_at.desc');
+    renderCollection(data);
+  } catch(err) {
+    document.getElementById('coll-grid').innerHTML='<div class="coll-empty">載入失敗：'+err.message+'</div>';
+  }
+}
+
+function renderCollection(data) {
+  const filtered = collFilter==='all' ? data : data.filter(i=>collFilter==='icon'?i.tags==='icon':i.tags!=='icon');
+  document.getElementById('coll-meta').textContent=data.length+' items';
   const grid=document.getElementById('coll-grid');
   grid.innerHTML='';
-  if (!coll.length) { grid.innerHTML='<div class="coll-empty">Collection 目前是空的。<br>裁切調整後存入。</div>'; return; }
-  coll.forEach(item => {
+  if (!filtered.length) { grid.innerHTML='<div class="coll-empty">目前是空的。</div>'; return; }
+  filtered.forEach(item=>{
+    const d=new Date(item.created_at);
+    const dateStr=d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
     const card=document.createElement('div'); card.className='coll-card';
-    const cid='cc-'+item.id;
     card.innerHTML=`
-      <div class="coll-card-img"><div class="coll-checker"></div><canvas id="${cid}"></canvas></div>
+      <div class="coll-card-img">
+        <div class="coll-checker"></div>
+        <img src="${item.image_data}" alt="${item.name}" loading="lazy">
+      </div>
       <div class="coll-card-body">
         <div class="coll-card-name">${item.name}</div>
-        <div class="coll-card-meta">
-          <span class="coll-card-date">${item.ts}</span>
-          <span class="coll-dl" onclick="dlFromColl('${item.id}')">↓ PNG</span>
+        <div class="coll-card-uploader">👤 ${item.uploader}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="coll-card-date">${dateStr}</div>
+          <span class="coll-card-dl" onclick="dlItem('${item.image_data}','${item.name.replace(/'/g,"\\'")}')">↓ PNG</span>
         </div>
       </div>`;
     grid.appendChild(card);
-    setTimeout(()=>{
-      const c=document.getElementById(cid); if(!c) return;
-      const img=new Image();
-      img.onload=()=>{
-        c.width=c.parentElement.clientWidth||150; c.height=c.width;
-        const ctx=c.getContext('2d');
-        const s=Math.min(c.width/img.width,c.height/img.height);
-        const dw=img.width*s,dh=img.height*s;
-        ctx.drawImage(img,(c.width-dw)/2,(c.height-dh)/2,dw,dh);
-      };
-      img.src=item.dataUrl;
-    },60);
   });
 }
 
-function dlFromColl(id) {
-  const item=getCollection().find(i=>String(i.id)===String(id));
-  if (!item) return;
-  const name=item.name.replace(/\s+/g,'_');
-  try { const a=document.createElement('a'); a.href=item.dataUrl; a.download=name+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e) {}
-  showDlPanel(item.dataUrl, name);
+function dlItem(dataUrl, name) {
+  const fname=name.replace(/\s+/g,'_');
+  try { const a=document.createElement('a'); a.href=dataUrl; a.download=fname+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e) {}
+  showDlPanel(dataUrl, fname);
 }
 
 function setCTab(tab) {
   document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active'); renderCollection();
+  tab.classList.add('active'); collFilter=tab.dataset.f;
+  loadCollection();
 }
 
 /* ── toast ── */
@@ -901,8 +964,11 @@ let toastTimer;
 function toast(msg) {
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2400);
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
 }
+
+/* init: prompt nickname on first visit */
+if (!getNick()) setTimeout(openNickModal, 800);
 </script>
 </body>
 </html>
