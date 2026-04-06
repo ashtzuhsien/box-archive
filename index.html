@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Box Archive — 蔬果紙箱視覺典藏</title>
+<title>Fruit Trademark — 蔬果商標視覺典藏</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -48,9 +48,9 @@ nav {
 .panel-left { border-right: 0.5px solid var(--border); }
 .panel-right { overflow-y: auto; }
 .sec-lbl {
-  font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--text-hint);
-  border-bottom: 0.5px solid var(--border-light); padding-bottom: 7px;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 12px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-muted); font-weight: 500;
+  border-bottom: 0.5px solid var(--border); padding-bottom: 8px;
   display: flex; align-items: center; justify-content: space-between;
 }
 
@@ -95,26 +95,28 @@ input[type=file] { display: none; }
 }
 #result-canvas { position: relative; z-index: 1; max-width: 100%; max-height: 200px; }
 .preview-empty {
-  font-family: 'Noto Sans TC', sans-serif; font-size: 10px; color: var(--text-hint);
-  text-align: center; line-height: 1.8; position: relative; z-index: 1;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 100%; z-index: 1;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text-muted);
+  text-align: center; line-height: 2;
 }
 
 /* edit sections */
 .edit-section { border: 0.5px solid var(--border-light); border-radius: 5px; background: var(--surface); overflow: hidden; }
 .edit-section-head {
-  font-family: 'Noto Sans TC', sans-serif; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-hint); padding: 7px 12px; background: var(--surface2);
+  font-family: 'Noto Sans TC', sans-serif; font-size: 12px; letter-spacing: 0.02em;
+  color: var(--text-muted); padding: 8px 12px; background: var(--surface2);
   border-bottom: 0.5px solid var(--border-light);
   display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;
 }
 .edit-section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 9px; }
 .slider-row { display: flex; align-items: center; gap: 8px; }
-.slider-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; color: var(--text-muted); width: 72px; flex-shrink: 0; line-height: 1.4; }
-.slider-lbl small { display: block; font-size: 7.5px; color: var(--text-hint); }
+.slider-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 12px; color: var(--text); width: 72px; flex-shrink: 0; line-height: 1.4; }
+.slider-lbl small { display: block; font-size: 10px; color: var(--text-muted); }
 input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: pointer; }
-.slider-val { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-muted); width: 36px; text-align: right; flex-shrink: 0; }
+.slider-val { font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text); width: 36px; text-align: right; flex-shrink: 0; }
 .toggle-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.toggle-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-muted); }
+.toggle-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text); }
 .toggle {
   position: relative; width: 32px; height: 18px; background: var(--surface3);
   border: 0.5px solid var(--border); border-radius: 9px; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
@@ -127,7 +129,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .toggle.on::after { left: 17px; background: var(--surface); }
 .method-tabs { display: flex; border: 0.5px solid var(--border); border-radius: 2px; overflow: hidden; }
 .method-tab {
-  flex: 1; padding: 5px 0; font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px;
+  flex: 1; padding: 6px 0; font-family: 'Noto Sans TC', sans-serif; font-size: 11px;
   text-align: center; color: var(--text-muted); background: var(--surface);
   cursor: pointer; border-right: 0.5px solid var(--border); transition: all 0.1s;
 }
@@ -271,13 +273,13 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 
 <nav>
   <div class="nav-brand">
-    <div class="nav-title">Box Archive</div>
-    <div class="nav-sub">蔬果紙箱視覺典藏</div>
+    <div class="nav-title">Fruit Trademark</div>
+    <div class="nav-sub">蔬果商標視覺典藏</div>
   </div>
   <div class="nav-right">
     <div class="nick-badge" id="nick-badge" onclick="openNickModal()">👤 設定暱稱</div>
     <button class="nav-tab active" onclick="showPage('upload',this)">Upload</button>
-    <button class="nav-tab" onclick="showPage('collection',this)">Collection</button>
+    <button class="nav-tab" onclick="showPage('collection',this)">Archive</button>
   </div>
 </nav>
 
@@ -411,10 +413,10 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 
       <div>
         <div style="font-family:'Noto Sans TC',sans-serif;font-size:8px;color:var(--text-hint);letter-spacing:0.1em;margin-bottom:6px;text-transform:uppercase;">命名</div>
-        <input class="name-input" type="text" id="item-name" placeholder="例：農場 Logo、有機認證章">
+        <input class="name-input" type="text" id="item-name" placeholder="葡萄農家標誌、芭樂標語">
       </div>
       <div class="action-row">
-        <button class="action-btn save" id="save-btn" onclick="saveToCollection()" disabled>存入 Collection</button>
+        <button class="action-btn save" id="save-btn" onclick="saveToCollection()" disabled>存入 Archive</button>
         <button class="action-btn" id="dl-btn" onclick="downloadResult()" disabled>下載 PNG</button>
       </div>
     </div>
@@ -425,7 +427,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 <div class="page" id="page-collection">
   <div class="coll-page">
     <div class="coll-header">
-      <div class="coll-title">Collection</div>
+      <div class="coll-title">Archive</div>
       <div class="coll-meta" id="coll-meta">載入中⋯</div>
     </div>
     <div class="coll-tabs">
@@ -441,7 +443,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 <div class="modal-overlay" id="nick-modal">
   <div class="modal">
     <div class="modal-title">設定暱稱</div>
-    <div class="modal-desc">你的暱稱會顯示在 Collection 中，讓大家知道是誰上傳的。</div>
+    <div class="modal-desc">你的暱稱會顯示在 Archive 中，讓大家知道是誰上傳的。</div>
     <input class="modal-input" type="text" id="nick-input" placeholder="輸入暱稱（例：Ashley）" maxlength="30">
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeNickModal()">取消</button>
@@ -955,12 +957,12 @@ async function saveToCollection() {
         tags: 'icon'
       })
     });
-    toast('已存入 Collection — '+name);
+    toast('已存入 Archive — '+name);
     document.getElementById('item-name').value='';
   } catch(err) {
     toast('儲存失敗：'+err.message);
   } finally {
-    btn.disabled=false; btn.textContent='存入 Collection';
+    btn.disabled=false; btn.textContent='存入 Archive';
   }
 }
 
