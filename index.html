@@ -2,6 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Box Archive — 蔬果紙箱視覺典藏</title>
 <style>
@@ -12,7 +13,7 @@
   --text: #1a1917; --text-muted: #6a6760; --text-hint: #9c9890;
 }
 html, body { height: 100%; }
-body { font-family: 'Georgia', serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
 nav {
   background: var(--surface); border-bottom: 0.5px solid var(--border);
@@ -22,17 +23,17 @@ nav {
 }
 .nav-brand { display: flex; align-items: baseline; gap: 10px; }
 .nav-title { font-size: 15px; letter-spacing: 0.01em; }
-.nav-sub { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); letter-spacing: 0.06em; }
+.nav-sub { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); letter-spacing: 0.06em; }
 .nav-right { display: flex; gap: 8px; align-items: center; }
 .nav-tab {
-  font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 10px; letter-spacing: 0.04em;
   padding: 5px 14px; border: 0.5px solid var(--border); border-radius: 2px;
   background: transparent; cursor: pointer; color: var(--text-muted); transition: all 0.12s;
 }
 .nav-tab:hover { background: var(--surface2); }
 .nav-tab.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 .nick-badge {
-  font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint);
+  font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint);
   padding: 4px 10px; border: 0.5px solid var(--border-light); border-radius: 2px;
   cursor: pointer;
 }
@@ -47,7 +48,7 @@ nav {
 .panel-left { border-right: 0.5px solid var(--border); }
 .panel-right { overflow-y: auto; }
 .sec-lbl {
-  font-family: 'Courier New', monospace; font-size: 8.5px; letter-spacing: 0.14em;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--text-hint);
   border-bottom: 0.5px solid var(--border-light); padding-bottom: 7px;
   display: flex; align-items: center; justify-content: space-between;
@@ -64,13 +65,13 @@ nav {
 #ui-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; display: block; }
 .drop-hint { display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
 .dh-icon { font-size: 32px; opacity: 0.35; }
-.dh-text { font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-hint); }
-.dh-hint { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); opacity: 0.7; }
+.dh-text { font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text-hint); }
+.dh-hint { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); opacity: 0.7; }
 
 /* mode bar */
 .mode-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .btn {
-  font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.04em;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 9px; letter-spacing: 0.04em;
   padding: 6px 14px; border: 0.5px solid var(--border); border-radius: 2px;
   background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
 }
@@ -78,7 +79,7 @@ nav {
 .btn.primary { background: var(--text); color: var(--surface); border-color: var(--text); }
 .btn.primary:hover { opacity: 0.85; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.mode-hint { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-hint); }
+.mode-hint { font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; color: var(--text-hint); }
 input[type=file] { display: none; }
 
 /* preview */
@@ -94,26 +95,26 @@ input[type=file] { display: none; }
 }
 #result-canvas { position: relative; z-index: 1; max-width: 100%; max-height: 200px; }
 .preview-empty {
-  font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-hint);
+  font-family: 'Noto Sans TC', sans-serif; font-size: 10px; color: var(--text-hint);
   text-align: center; line-height: 1.8; position: relative; z-index: 1;
 }
 
 /* edit sections */
 .edit-section { border: 0.5px solid var(--border-light); border-radius: 5px; background: var(--surface); overflow: hidden; }
 .edit-section-head {
-  font-family: 'Courier New', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--text-hint); padding: 7px 12px; background: var(--surface2);
   border-bottom: 0.5px solid var(--border-light);
   display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;
 }
 .edit-section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 9px; }
 .slider-row { display: flex; align-items: center; gap: 8px; }
-.slider-lbl { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-muted); width: 72px; flex-shrink: 0; line-height: 1.4; }
+.slider-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; color: var(--text-muted); width: 72px; flex-shrink: 0; line-height: 1.4; }
 .slider-lbl small { display: block; font-size: 7.5px; color: var(--text-hint); }
 input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: pointer; }
-.slider-val { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-muted); width: 36px; text-align: right; flex-shrink: 0; }
+.slider-val { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-muted); width: 36px; text-align: right; flex-shrink: 0; }
 .toggle-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.toggle-lbl { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-muted); }
+.toggle-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-muted); }
 .toggle {
   position: relative; width: 32px; height: 18px; background: var(--surface3);
   border: 0.5px solid var(--border); border-radius: 9px; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
@@ -126,7 +127,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .toggle.on::after { left: 17px; background: var(--surface); }
 .method-tabs { display: flex; border: 0.5px solid var(--border); border-radius: 2px; overflow: hidden; }
 .method-tab {
-  flex: 1; padding: 5px 0; font-family: 'Courier New', monospace; font-size: 8.5px;
+  flex: 1; padding: 5px 0; font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px;
   text-align: center; color: var(--text-muted); background: var(--surface);
   cursor: pointer; border-right: 0.5px solid var(--border); transition: all 0.1s;
 }
@@ -135,7 +136,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 
 .action-row { display: flex; gap: 8px; }
 .action-btn {
-  flex: 1; padding: 10px 0; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
+  flex: 1; padding: 10px 0; font-family: 'Noto Sans TC', sans-serif; font-size: 10px; letter-spacing: 0.04em;
   border: 0.5px solid var(--border); border-radius: 2px;
   background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
 }
@@ -145,7 +146,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .name-input {
   width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: 2px;
-  background: var(--surface); font-family: 'Courier New', monospace; font-size: 11px;
+  background: var(--surface); font-family: 'Noto Sans TC', sans-serif; font-size: 11px;
   color: var(--text); outline: none;
 }
 .name-input:focus { border-color: var(--text-muted); }
@@ -154,10 +155,10 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 .coll-page { padding: 28px; }
 .coll-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
 .coll-title { font-size: 20px; }
-.coll-meta { font-family: 'Courier New', monospace; font-size: 9px; color: var(--text-hint); }
+.coll-meta { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); }
 .coll-tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
 .c-tab {
-  padding: 7px 20px; font-family: 'Courier New', monospace; font-size: 9px;
+  padding: 7px 20px; font-family: 'Noto Sans TC', sans-serif; font-size: 9px;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hint);
   cursor: pointer; border-bottom: 1px solid transparent; margin-bottom: -0.5px; transition: all 0.12s;
 }
@@ -177,13 +178,50 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
 }
 .coll-card-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; display: block; }
 .coll-card-body { padding: 9px 11px; border-top: 0.5px solid var(--border-light); }
-.coll-card-name { font-family: 'Courier New', monospace; font-size: 10px; font-weight: bold; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.coll-card-uploader { font-family: 'Courier New', monospace; font-size: 8.5px; color: var(--text-hint); margin-bottom: 2px; }
-.coll-card-date { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-hint); }
-.coll-card-dl { font-family: 'Courier New', monospace; font-size: 8px; color: var(--text-muted); cursor: pointer; float: right; }
+.coll-card-name { font-family: 'Noto Sans TC', sans-serif; font-size: 10px; font-weight: bold; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coll-card-uploader { font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; color: var(--text-hint); margin-bottom: 2px; }
+.coll-card-date { font-family: 'Noto Sans TC', sans-serif; font-size: 8px; color: var(--text-hint); }
+.coll-card-dl { font-family: 'Noto Sans TC', sans-serif; font-size: 8px; color: var(--text-muted); cursor: pointer; float: right; }
 .coll-card-dl:hover { color: var(--text); }
-.coll-empty { padding: 60px 0; text-align: center; font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-hint); line-height: 2; }
-.coll-loading { padding: 40px 0; text-align: center; font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-hint); }
+.coll-empty { padding: 60px 0; text-align: center; font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text-hint); line-height: 2; }
+.coll-loading { padding: 40px 0; text-align: center; font-family: 'Noto Sans TC', sans-serif; font-size: 10px; color: var(--text-hint); }
+/* lightbox */
+.lightbox-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,9,8,0.82); z-index: 600;
+  align-items: center; justify-content: center; padding: 24px;
+}
+.lightbox-overlay.open { display: flex; }
+.lightbox {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
+  max-width: 560px; width: 100%; max-height: 90vh; position: relative;
+}
+.lightbox-img-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 28px; min-height: 260px;
+  background-image: linear-gradient(45deg,#ccc8c0 25%,transparent 25%),linear-gradient(-45deg,#ccc8c0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc8c0 75%),linear-gradient(-45deg,transparent 75%,#ccc8c0 75%);
+  background-size: 14px 14px; background-position: 0 0,0 7px,7px -7px,-7px 0; background-color: #dedad2;
+}
+.lightbox-img-wrap img { max-width: 100%; max-height: 380px; object-fit: contain; }
+.lightbox-body { padding: 18px 20px; border-top: 0.5px solid var(--border-light); }
+.lightbox-name { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.lightbox-meta { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); margin-bottom: 16px; line-height: 1.8; }
+.lightbox-actions { display: flex; gap: 8px; }
+.lb-btn {
+  padding: 9px 18px; font-family: 'Noto Sans TC', sans-serif; font-size: 10px;
+  border: 0.5px solid var(--border); border-radius: 2px;
+  background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+}
+.lb-btn:hover { background: var(--surface2); color: var(--text); }
+.lb-btn.dl { background: var(--text); color: var(--surface); border-color: var(--text); flex: 1; text-decoration: none; text-align: center; }
+.lb-btn.dl:hover { opacity: 0.85; }
+.lb-close {
+  position: absolute; top: 12px; right: 16px;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 13px; color: var(--text-hint);
+  cursor: pointer; line-height: 1;
+}
+.lb-close:hover { color: var(--text); }
 
 /* modal */
 .modal-overlay {
@@ -197,22 +235,22 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
   border-radius: 8px; padding: 28px 32px; width: 340px;
 }
 .modal-title { font-size: 15px; margin-bottom: 6px; }
-.modal-desc { font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.7; }
+.modal-desc { font-family: 'Noto Sans TC', sans-serif; font-size: 10px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.7; }
 .modal-input {
   width: 100%; padding: 9px 12px; border: 0.5px solid var(--border); border-radius: 3px;
-  font-family: 'Courier New', monospace; font-size: 12px; background: var(--bg);
+  font-family: 'Noto Sans TC', sans-serif; font-size: 12px; background: var(--bg);
   color: var(--text); outline: none; margin-bottom: 14px;
 }
 .modal-input:focus { border-color: var(--text-muted); }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-.modal-cancel { padding: 7px 16px; border: 0.5px solid var(--border); border-radius: 2px; background: transparent; color: var(--text-muted); font-family: 'Courier New', monospace; font-size: 10px; cursor: pointer; }
-.modal-save { padding: 7px 18px; border: none; border-radius: 2px; background: var(--text); color: var(--surface); font-family: 'Courier New', monospace; font-size: 10px; cursor: pointer; }
+.modal-cancel { padding: 7px 16px; border: 0.5px solid var(--border); border-radius: 2px; background: transparent; color: var(--text-muted); font-family: 'Noto Sans TC', sans-serif; font-size: 10px; cursor: pointer; }
+.modal-save { padding: 7px 18px; border: none; border-radius: 2px; background: var(--text); color: var(--surface); font-family: 'Noto Sans TC', sans-serif; font-size: 10px; cursor: pointer; }
 
 .toast {
   position: fixed; bottom: 24px; left: 50%;
   transform: translateX(-50%) translateY(12px);
   background: var(--text); color: var(--surface);
-  font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.04em;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 10px; letter-spacing: 0.04em;
   padding: 8px 22px; border-radius: 2px; opacity: 0;
   transition: all 0.18s; pointer-events: none; z-index: 999;
 }
@@ -372,7 +410,7 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
       </div>
 
       <div>
-        <div style="font-family:'Courier New',monospace;font-size:8px;color:var(--text-hint);letter-spacing:0.1em;margin-bottom:6px;text-transform:uppercase;">命名</div>
+        <div style="font-family:'Noto Sans TC',sans-serif;font-size:8px;color:var(--text-hint);letter-spacing:0.1em;margin-bottom:6px;text-transform:uppercase;">命名</div>
         <input class="name-input" type="text" id="item-name" placeholder="例：農場 Logo、有機認證章">
       </div>
       <div class="action-row">
@@ -408,6 +446,24 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeNickModal()">取消</button>
       <button class="modal-save" onclick="saveNick()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lb-overlay" onclick="if(event.target===this)closeLightbox()">
+  <div class="lightbox">
+    <span class="lb-close" onclick="closeLightbox()">✕</span>
+    <div class="lightbox-img-wrap">
+      <img id="lb-img" src="" alt="">
+    </div>
+    <div class="lightbox-body">
+      <div class="lightbox-name" id="lb-name"></div>
+      <div class="lightbox-meta" id="lb-meta"></div>
+      <div class="lightbox-actions">
+        <button class="lb-btn" onclick="closeLightbox()">關閉</button>
+        <a class="lb-btn dl" id="lb-dl" href="" download="">↓ 下載 PNG</a>
+      </div>
     </div>
   </div>
 </div>
@@ -877,7 +933,7 @@ function downloadResult() {
 function showDlPanel(dataUrl, name) {
   let p=document.getElementById('dl-panel');
   if (!p) { p=document.createElement('div'); p.id='dl-panel'; p.style.cssText='position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:0.5px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:14px;z-index:500;'; document.body.appendChild(p); }
-  p.innerHTML=`<span style="font-family:'Courier New',monospace;font-size:9px;color:var(--text-muted);">右鍵另存 or 點下載：</span><img src="${dataUrl}" style="height:48px;border:0.5px solid var(--border);border-radius:3px;background:#dedad2;"><a href="${dataUrl}" download="${name}.png" style="font-family:'Courier New',monospace;font-size:10px;padding:6px 16px;background:var(--text);color:var(--surface);border-radius:2px;text-decoration:none;">↓ ${name}.png</a><span onclick="document.getElementById('dl-panel').remove()" style="font-family:'Courier New',monospace;font-size:10px;color:var(--text-hint);cursor:pointer;margin-left:auto;">✕</span>`;
+  p.innerHTML=`<span style="font-family:'Noto Sans TC',sans-serif;font-size:9px;color:var(--text-muted);">右鍵另存 or 點下載：</span><img src="${dataUrl}" style="height:48px;border:0.5px solid var(--border);border-radius:3px;background:#dedad2;"><a href="${dataUrl}" download="${name}.png" style="font-family:'Noto Sans TC',sans-serif;font-size:10px;padding:6px 16px;background:var(--text);color:var(--surface);border-radius:2px;text-decoration:none;">↓ ${name}.png</a><span onclick="document.getElementById('dl-panel').remove()" style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--text-hint);cursor:pointer;margin-left:auto;">✕</span>`;
 }
 
 /* ── save to Supabase ── */
@@ -930,6 +986,7 @@ function renderCollection(data) {
     const d=new Date(item.created_at);
     const dateStr=d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
     const card=document.createElement('div'); card.className='coll-card';
+    card.style.cursor='pointer';
     card.innerHTML=`
       <div class="coll-card-img">
         <div class="coll-checker"></div>
@@ -938,19 +995,32 @@ function renderCollection(data) {
       <div class="coll-card-body">
         <div class="coll-card-name">${item.name}</div>
         <div class="coll-card-uploader">👤 ${item.uploader}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div class="coll-card-date">${dateStr}</div>
-          <span class="coll-card-dl" onclick="dlItem('${item.image_data}','${item.name.replace(/'/g,"\\'")}')">↓ PNG</span>
-        </div>
+        <div class="coll-card-date">${dateStr}</div>
       </div>`;
+    card.addEventListener('click', () => openLightbox(item));
     grid.appendChild(card);
   });
 }
 
-function dlItem(dataUrl, name) {
-  const fname=name.replace(/\s+/g,'_');
-  try { const a=document.createElement('a'); a.href=dataUrl; a.download=fname+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e) {}
-  showDlPanel(dataUrl, fname);
+function openLightbox(item) {
+  const d = new Date(item.created_at);
+  const dateStr = d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const fname = item.name.replace(/\s+/g,'_');
+  document.getElementById('lb-img').src = item.image_data;
+  document.getElementById('lb-img').alt = item.name;
+  document.getElementById('lb-name').textContent = item.name;
+  document.getElementById('lb-meta').innerHTML = `👤 ${item.uploader}&emsp;📅 ${dateStr}`;
+  const dlBtn = document.getElementById('lb-dl');
+  dlBtn.href = item.image_data;
+  dlBtn.download = fname+'.png';
+  dlBtn.textContent = '↓ 下載 '+fname+'.png';
+  document.getElementById('lb-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lb-overlay').classList.remove('open');
+  document.body.style.overflow='';
 }
 
 function setCTab(tab) {
