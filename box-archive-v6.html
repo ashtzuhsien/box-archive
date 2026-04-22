@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fruit Trademark — 蔬果商標視覺典藏</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0ece4; --surface: #faf8f4; --surface2: #ece8e0;
+  --surface3: #e4e0d8; --border: #ccc8c0; --border-light: #dedad2;
+  --text: #1a1917; --text-muted: #6a6760; --text-hint: #9c9890;
+}
+html, body { height: 100%; }
+body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+nav {
+  background: var(--surface); border-bottom: 0.5px solid var(--border);
+  padding: 0 28px; height: 50px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 200;
+}
+.nav-brand { display: flex; align-items: baseline; gap: 10px; }
+.nav-title { font-size: 15px; letter-spacing: 0.01em; }
+.nav-sub { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); letter-spacing: 0.06em; }
+.nav-right { display: flex; gap: 8px; align-items: center; }
+.nav-tab {
+  font-family: 'Noto Sans TC', sans-serif; font-size: 10px; letter-spacing: 0.04em;
+  padding: 5px 14px; border: 0.5px solid var(--border); border-radius: 2px;
+  background: transparent; cursor: pointer; color: var(--text-muted); transition: all 0.12s;
+}
+.nav-tab:hover { background: var(--surface2); }
+.nav-tab.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+.nick-badge {
+  font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint);
+  padding: 4px 10px; border: 0.5px solid var(--border-light); border-radius: 2px;
+  cursor: pointer;
+}
+.nick-badge:hover { color: var(--text-muted); }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* two-panel */
+.two-panel { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 50px); }
+.panel { padding: 22px 26px; display: flex; flex-direction: column; gap: 14px; }
+.panel-left { border-right: 0.5px solid var(--border); }
+.panel-right { overflow-y: auto; }
+.sec-lbl {
+  font-family: 'Noto Sans TC', sans-serif; font-size: 12px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-muted); font-weight: 500;
+  border-bottom: 0.5px solid var(--border); padding-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ── STAGE ── */
+.stage-wrap {
+  position: relative; background: var(--surface2);
+  border: 0.5px solid var(--border); border-radius: 6px;
+  overflow: hidden; flex: 1; min-height: 280px;
+  display: flex; align-items: center; justify-content: center;
+}
+#stage-canvas { position: absolute; top: 0; left: 0; display: block; }
+#ui-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; display: block; }
+.drop-hint { display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
+.dh-icon { font-size: 32px; opacity: 0.35; }
+.dh-text { font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text-hint); }
+.dh-hint { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); opacity: 0.7; }
+
+/* mode bar */
+.mode-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.btn {
+  font-family: 'Noto Sans TC', sans-serif; font-size: 9px; letter-spacing: 0.04em;
+  padding: 6px 14px; border: 0.5px solid var(--border); border-radius: 2px;
+  background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+}
+.btn:hover { background: var(--surface2); color: var(--text); }
+.btn.primary { background: var(--text); color: var(--surface); border-color: var(--text); }
+.btn.primary:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.mode-hint { font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; color: var(--text-hint); }
+input[type=file] { display: none; }
+
+/* preview */
+.preview-box {
+  border: 0.5px solid var(--border); border-radius: 6px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 160px; position: relative; background: var(--surface2);
+}
+.checker {
+  background-image: linear-gradient(45deg,#ccc8c0 25%,transparent 25%),linear-gradient(-45deg,#ccc8c0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc8c0 75%),linear-gradient(-45deg,transparent 75%,#ccc8c0 75%);
+  background-size: 14px 14px; background-position: 0 0,0 7px,7px -7px,-7px 0;
+  background-color: #dedad2; position: absolute; inset: 0;
+}
+#result-canvas { position: relative; z-index: 1; max-width: 100%; max-height: 200px; }
+.preview-empty {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 100%; z-index: 1;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text-muted);
+  text-align: center; line-height: 2;
+}
+
+/* edit sections */
+.edit-section { border: 0.5px solid var(--border-light); border-radius: 5px; background: var(--surface); overflow: hidden; }
+.edit-section-head {
+  font-family: 'Noto Sans TC', sans-serif; font-size: 12px; letter-spacing: 0.02em;
+  color: var(--text-muted); padding: 8px 12px; background: var(--surface2);
+  border-bottom: 0.5px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;
+}
+.edit-section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 9px; }
+.slider-row { display: flex; align-items: center; gap: 8px; }
+.slider-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 12px; color: var(--text); width: 72px; flex-shrink: 0; line-height: 1.4; }
+.slider-lbl small { display: block; font-size: 10px; color: var(--text-muted); }
+input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: pointer; }
+.slider-val { font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text); width: 36px; text-align: right; flex-shrink: 0; }
+.toggle-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.toggle-lbl { font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text); }
+.toggle {
+  position: relative; width: 32px; height: 18px; background: var(--surface3);
+  border: 0.5px solid var(--border); border-radius: 9px; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--text); border-color: var(--text); }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 10px; height: 10px; border-radius: 50%; background: var(--text-hint); transition: all 0.2s;
+}
+.toggle.on::after { left: 17px; background: var(--surface); }
+.method-tabs { display: flex; border: 0.5px solid var(--border); border-radius: 2px; overflow: hidden; }
+.method-tab {
+  flex: 1; padding: 6px 0; font-family: 'Noto Sans TC', sans-serif; font-size: 11px;
+  text-align: center; color: var(--text-muted); background: var(--surface);
+  cursor: pointer; border-right: 0.5px solid var(--border); transition: all 0.1s;
+}
+.method-tab:last-child { border-right: none; }
+.method-tab.active { background: var(--text); color: var(--surface); }
+
+.action-row { display: flex; gap: 8px; }
+.action-btn {
+  flex: 1; padding: 10px 0; font-family: 'Noto Sans TC', sans-serif; font-size: 10px; letter-spacing: 0.04em;
+  border: 0.5px solid var(--border); border-radius: 2px;
+  background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+}
+.action-btn:hover { background: var(--surface2); color: var(--text); }
+.action-btn.save { background: var(--text); color: var(--surface); border-color: var(--text); }
+.action-btn.save:hover { opacity: 0.85; }
+.action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.name-input {
+  width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: 2px;
+  background: var(--surface); font-family: 'Noto Sans TC', sans-serif; font-size: 11px;
+  color: var(--text); outline: none;
+}
+.name-input:focus { border-color: var(--text-muted); }
+
+/* collection */
+.coll-page { padding: 28px; }
+.coll-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.coll-title { font-size: 20px; }
+.coll-meta { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); }
+.coll-tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+.c-tab {
+  padding: 7px 20px; font-family: 'Noto Sans TC', sans-serif; font-size: 9px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hint);
+  cursor: pointer; border-bottom: 1px solid transparent; margin-bottom: -0.5px; transition: all 0.12s;
+}
+.c-tab:hover { color: var(--text); }
+.c-tab.active { color: var(--text); border-bottom-color: var(--text); }
+.coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; }
+.coll-card {
+  border: 0.5px solid var(--border); border-radius: 5px; overflow: hidden;
+  background: var(--surface); transition: border-color 0.12s, transform 0.12s;
+}
+.coll-card:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+.coll-card-img { aspect-ratio: 1; position: relative; overflow: hidden; }
+.coll-checker {
+  background-image: linear-gradient(45deg,#ccc8c0 25%,transparent 25%),linear-gradient(-45deg,#ccc8c0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc8c0 75%),linear-gradient(-45deg,transparent 75%,#ccc8c0 75%);
+  background-size: 10px 10px; background-position: 0 0,0 5px,5px -5px,-5px 0;
+  background-color: #dedad2; position: absolute; inset: 0;
+}
+.coll-card-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; display: block; }
+.coll-card-body { padding: 9px 11px; border-top: 0.5px solid var(--border-light); }
+.coll-card-name { font-family: 'Noto Sans TC', sans-serif; font-size: 10px; font-weight: bold; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coll-card-uploader { font-family: 'Noto Sans TC', sans-serif; font-size: 8.5px; color: var(--text-hint); margin-bottom: 2px; }
+.coll-card-date { font-family: 'Noto Sans TC', sans-serif; font-size: 8px; color: var(--text-hint); }
+.coll-card-dl { font-family: 'Noto Sans TC', sans-serif; font-size: 8px; color: var(--text-muted); cursor: pointer; float: right; }
+.coll-card-dl:hover { color: var(--text); }
+.coll-empty { padding: 60px 0; text-align: center; font-family: 'Noto Sans TC', sans-serif; font-size: 11px; color: var(--text-hint); line-height: 2; }
+.coll-loading { padding: 40px 0; text-align: center; font-family: 'Noto Sans TC', sans-serif; font-size: 10px; color: var(--text-hint); }
+/* lightbox */
+.lightbox-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,9,8,0.82); z-index: 600;
+  align-items: center; justify-content: center; padding: 24px;
+}
+.lightbox-overlay.open { display: flex; }
+.lightbox {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
+  max-width: 560px; width: 100%; max-height: 90vh; position: relative;
+}
+.lightbox-img-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 28px; min-height: 260px;
+  background-image: linear-gradient(45deg,#ccc8c0 25%,transparent 25%),linear-gradient(-45deg,#ccc8c0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc8c0 75%),linear-gradient(-45deg,transparent 75%,#ccc8c0 75%);
+  background-size: 14px 14px; background-position: 0 0,0 7px,7px -7px,-7px 0; background-color: #dedad2;
+}
+.lightbox-img-wrap img { max-width: 100%; max-height: 380px; object-fit: contain; }
+.lightbox-body { padding: 18px 20px; border-top: 0.5px solid var(--border-light); }
+.lightbox-name { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.lightbox-meta { font-family: 'Noto Sans TC', sans-serif; font-size: 9px; color: var(--text-hint); margin-bottom: 16px; line-height: 1.8; }
+.lightbox-actions { display: flex; gap: 8px; }
+.lb-btn {
+  padding: 9px 18px; font-family: 'Noto Sans TC', sans-serif; font-size: 10px;
+  border: 0.5px solid var(--border); border-radius: 2px;
+  background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+}
+.lb-btn:hover { background: var(--surface2); color: var(--text); }
+.lb-btn.dl { background: var(--text); color: var(--surface); border-color: var(--text); flex: 1; text-decoration: none; text-align: center; }
+.lb-btn.dl:hover { opacity: 0.85; }
+.lb-close {
+  position: absolute; top: 12px; right: 16px;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 13px; color: var(--text-hint);
+  cursor: pointer; line-height: 1;
+}
+.lb-close:hover { color: var(--text); }
+
+/* modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(26,25,23,0.6); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; width: 340px;
+}
+.modal-title { font-size: 15px; margin-bottom: 6px; }
+.modal-desc { font-family: 'Noto Sans TC', sans-serif; font-size: 10px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.7; }
+.modal-input {
+  width: 100%; padding: 9px 12px; border: 0.5px solid var(--border); border-radius: 3px;
+  font-family: 'Noto Sans TC', sans-serif; font-size: 12px; background: var(--bg);
+  color: var(--text); outline: none; margin-bottom: 14px;
+}
+.modal-input:focus { border-color: var(--text-muted); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-cancel { padding: 7px 16px; border: 0.5px solid var(--border); border-radius: 2px; background: transparent; color: var(--text-muted); font-family: 'Noto Sans TC', sans-serif; font-size: 10px; cursor: pointer; }
+.modal-save { padding: 7px 18px; border: none; border-radius: 2px; background: var(--text); color: var(--surface); font-family: 'Noto Sans TC', sans-serif; font-size: 10px; cursor: pointer; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--text); color: var(--surface);
+  font-family: 'Noto Sans TC', sans-serif; font-size: 10px; letter-spacing: 0.04em;
+  padding: 8px 22px; border-radius: 2px; opacity: 0;
+  transition: all 0.18s; pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 700px) {
+  nav { padding: 0 14px; }
+  .nav-sub { display: none; }
+  .two-panel { grid-template-columns: 1fr; }
+  .panel-left { border-right: none; border-bottom: 0.5px solid var(--border); min-height: 60vh; }
+  .panel { padding: 16px; }
+  .coll-page { padding: 16px; }
+  .coll-grid { grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-title">Fruit Trademark</div>
+    <div class="nav-sub">蔬果商標視覺典藏</div>
+  </div>
+  <div class="nav-right">
+    <div class="nick-badge" id="nick-badge" onclick="openNickModal()">👤 設定暱稱</div>
+    <button class="nav-tab active" onclick="showPage('upload',this)">Upload</button>
+    <button class="nav-tab" onclick="showPage('collection',this)">Archive</button>
+  </div>
+</nav>
+
+<!-- UPLOAD PAGE -->
+<div class="page active" id="page-upload">
+  <div class="two-panel">
+
+    <!-- LEFT: stage -->
+    <div class="panel panel-left">
+      <div class="sec-lbl">
+        <span id="stage-label">01 — 上傳圖片</span>
+        <span id="stage-size" style="font-size:8px;color:var(--text-hint);"></span>
+      </div>
+
+      <div class="stage-wrap" id="stage-wrap">
+        <canvas id="stage-canvas"></canvas>
+        <canvas id="ui-canvas"></canvas>
+        <div class="drop-hint" id="drop-hint">
+          <div class="dh-icon">📦</div>
+          <div class="dh-text">拖曳或點擊上傳</div>
+          <div class="dh-hint">JPG · PNG · HEIC</div>
+        </div>
+      </div>
+      <input type="file" id="file-input" accept="image/*">
+
+      <div class="mode-bar" id="mode-bar">
+        <button class="btn" onclick="document.getElementById('file-input').click()">選擇圖片</button>
+        <button class="btn" id="clear-btn" onclick="clearSel()" disabled>清除選取</button>
+        <button class="btn primary" id="confirm-btn" onclick="confirmCrop()" disabled>確認裁切 →</button>
+        <div class="mode-hint" id="mode-hint"></div>
+      </div>
+
+      <!-- transform sliders shown only in crop-confirmed state -->
+      <div id="transform-panel" style="display:none;">
+        <div class="sec-lbl" style="margin-bottom:8px;">變形調整 <span style="font-size:8px;color:var(--text-hint);margin-left:6px;">調整後畫面自動裁正</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="slider-row">
+            <div class="slider-lbl">旋轉<small>rotate</small></div>
+            <input type="range" id="t-rotate" min="-45" max="45" value="0" step="0.5" oninput="updateTransform()">
+            <div class="slider-val" id="t-rotate-val">0°</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">水平修正<small>skew X</small></div>
+            <input type="range" id="t-skewx" min="-30" max="30" value="0" step="0.5" oninput="updateTransform()">
+            <div class="slider-val" id="t-skewx-val">0°</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">垂直修正<small>skew Y</small></div>
+            <input type="range" id="t-skewy" min="-30" max="30" value="0" step="0.5" oninput="updateTransform()">
+            <div class="slider-val" id="t-skewy-val">0°</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn" onclick="resetTransform()" style="font-size:8.5px;">重置變形</button>
+          <button class="btn primary" onclick="applyTransformAndCrop()" style="font-size:8.5px;">套用並送出 →</button>
+          <button class="btn" onclick="backToSelect()" style="font-size:8.5px;">重新框選</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: adjust + export -->
+    <div class="panel panel-right">
+      <div class="sec-lbl">
+        <span>02 — 調整與匯出</span>
+        <span id="crop-size-lbl" style="font-size:8px;color:var(--text-hint);"></span>
+      </div>
+
+      <div class="preview-box">
+        <div class="checker"></div>
+        <canvas id="result-canvas"></canvas>
+        <div class="preview-empty" id="preview-empty">框選目標 → 確認裁切 → 套用變形<br>結果在此預覽</div>
+      </div>
+
+      <!-- bg removal -->
+      <div class="edit-section">
+        <div class="edit-section-head" onclick="toggleSec('bg-body','bg-arr')">
+          <span>去背 — Background Removal</span><span id="bg-arr">▾</span>
+        </div>
+        <div class="edit-section-body" id="bg-body">
+          <div class="toggle-row">
+            <span class="toggle-lbl">啟用去背</span>
+            <div class="toggle" id="bg-toggle" onclick="toggleBg()"></div>
+          </div>
+          <div class="method-tabs">
+            <div class="method-tab active" data-m="flood" onclick="setMethod(this)">Flood Fill</div>
+            <div class="method-tab" data-m="color" onclick="setMethod(this)">色彩閾值</div>
+            <div class="method-tab" data-m="edge" onclick="setMethod(this)">邊緣保留</div>
+          </div>
+
+          <!-- manual color picker -->
+          <div style="border:0.5px solid var(--border-light);border-radius:4px;padding:10px 12px;background:var(--surface2);">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+              <span>手動指定背景色</span>
+              <span style="font-size:10px;color:var(--text-hint);">點圖片上的背景區域</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button id="pick-btn" class="btn" onclick="startPicking()" style="font-size:10px;padding:5px 12px;">
+                🎯 點選背景色
+              </button>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div id="picked-color-swatch" style="width:24px;height:24px;border-radius:3px;border:0.5px solid var(--border);background:#ccc8c0;flex-shrink:0;"></div>
+                <div id="picked-color-val" style="font-size:10px;color:var(--text-hint);font-family:'Noto Sans TC',sans-serif;">#ccc8c0</div>
+              </div>
+              <button class="btn" onclick="clearPickedColor()" style="font-size:10px;padding:5px 10px;">清除</button>
+            </div>
+            <div id="pick-hint" style="font-size:10px;color:var(--text-hint);margin-top:6px;display:none;">
+              ← 點左側圖片上的背景顏色
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-lbl">容忍度<small>tolerance</small></div>
+            <input type="range" id="tolerance" min="5" max="150" value="35" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="tolerance-val">35</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">羽化<small>feather</small></div>
+            <input type="range" id="feather" min="0" max="20" value="2" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="feather-val">2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- color -->
+      <div class="edit-section">
+        <div class="edit-section-head" onclick="toggleSec('color-body','color-arr')">
+          <span>色調 — Color</span><span id="color-arr">▾</span>
+        </div>
+        <div class="edit-section-body" id="color-body">
+          <div class="slider-row">
+            <div class="slider-lbl">亮度<small>brightness</small></div>
+            <input type="range" id="brightness" min="50" max="200" value="100" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="brightness-val">100</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">對比<small>contrast</small></div>
+            <input type="range" id="contrast" min="50" max="200" value="100" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="contrast-val">100</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">飽和度<small>saturation</small></div>
+            <input type="range" id="saturation" min="0" max="300" value="100" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="saturation-val">100</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-lbl">銳化<small>sharpen</small></div>
+            <input type="range" id="sharpen" min="0" max="10" value="0" step="1" oninput="applyEdits()">
+            <div class="slider-val" id="sharpen-val">0</div>
+          </div>
+          <button class="btn" style="font-size:8.5px;padding:5px 10px;align-self:flex-start;" onclick="resetColor()">重置色調</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-family:'Noto Sans TC',sans-serif;font-size:8px;color:var(--text-hint);letter-spacing:0.1em;margin-bottom:6px;text-transform:uppercase;">命名</div>
+        <input class="name-input" type="text" id="item-name" placeholder="葡萄農家標誌、芭樂標語">
+      </div>
+      <div class="action-row">
+        <button class="action-btn save" id="save-btn" onclick="saveToCollection()" disabled>存入 Archive</button>
+        <button class="action-btn" id="dl-btn" onclick="downloadResult()" disabled>下載 PNG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTION PAGE -->
+<div class="page" id="page-collection">
+  <div class="coll-page">
+    <div class="coll-header">
+      <div class="coll-title">Archive</div>
+      <div class="coll-meta" id="coll-meta">載入中⋯</div>
+    </div>
+    <div class="coll-tabs">
+      <div class="c-tab active" data-f="all" onclick="setCTab(this)">All</div>
+      <div class="c-tab" data-f="icon" onclick="setCTab(this)">Icon</div>
+      <div class="c-tab" data-f="text" onclick="setCTab(this)">Text / Brand</div>
+    </div>
+    <div class="coll-grid" id="coll-grid"><div class="coll-loading">載入中⋯</div></div>
+  </div>
+</div>
+
+<!-- NICKNAME MODAL -->
+<div class="modal-overlay" id="nick-modal">
+  <div class="modal">
+    <div class="modal-title">設定暱稱</div>
+    <div class="modal-desc">你的暱稱會顯示在 Archive 中，讓大家知道是誰上傳的。</div>
+    <input class="modal-input" type="text" id="nick-input" placeholder="輸入暱稱（例：Ashley）" maxlength="30">
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeNickModal()">取消</button>
+      <button class="modal-save" onclick="saveNick()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lb-overlay" onclick="if(event.target===this)closeLightbox()">
+  <div class="lightbox">
+    <span class="lb-close" onclick="closeLightbox()">✕</span>
+    <div class="lightbox-img-wrap">
+      <img id="lb-img" src="" alt="">
+    </div>
+    <div class="lightbox-body">
+      <div class="lightbox-name" id="lb-name"></div>
+      <div class="lightbox-meta" id="lb-meta"></div>
+      <div class="lightbox-actions">
+        <button class="lb-btn" onclick="closeLightbox()">關閉</button>
+        <a class="lb-btn dl" id="lb-dl" href="" download="">↓ 下載 PNG</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Supabase config ── */
+const SB_URL  = 'https://pjzetydqawhqmxuptoug.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqemV0eWRxYXdocW14dXB0b3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTE1MzYsImV4cCI6MjA5MDg4NzUzNn0.vJnd-ZNYFfCPVBFlrzxIZDq7GCls_gCgDJxv9DwoAJ0';
+const SB_HDR  = { 'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY, 'Content-Type': 'application/json' };
+
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SB_URL+path, { ...opts, headers: { ...SB_HDR, ...(opts.headers||{}) } });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json().catch(()=>({}));
+}
+
+/* ── nickname ── */
+function getNick() { return localStorage.getItem('ba_nick') || ''; }
+function updateNickBadge() {
+  const n = getNick();
+  document.getElementById('nick-badge').textContent = n ? '👤 '+n : '👤 設定暱稱';
+}
+function openNickModal() {
+  document.getElementById('nick-input').value = getNick();
+  document.getElementById('nick-modal').classList.add('open');
+}
+function closeNickModal() { document.getElementById('nick-modal').classList.remove('open'); }
+function saveNick() {
+  const n = document.getElementById('nick-input').value.trim();
+  if (!n) { toast('請輸入暱稱'); return; }
+  localStorage.setItem('ba_nick', n);
+  updateNickBadge(); closeNickModal(); toast('暱稱已設定：'+n);
+}
+document.getElementById('nick-modal').addEventListener('click', e => { if (e.target===e.currentTarget) closeNickModal(); });
+updateNickBadge();
+
+/* ── page nav ── */
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (name==='collection') loadCollection();
+}
+function toggleSec(bodyId, arrId) {
+  const b = document.getElementById(bodyId);
+  const hidden = b.style.display==='none';
+  b.style.display = hidden ? 'flex' : 'none';
+  document.getElementById(arrId).textContent = hidden ? '▾' : '▸';
+}
+
+/* ── state ── */
+let srcImage = null;          // original image
+let croppedCanvas = null;     // result of crop+transform, fed into color pipeline
+let transformCanvas = null;   // live transform preview (before final apply)
+let bgOn = false, bgMethod = 'flood';
+let isPicking = false;
+let pickedColor = null;       // { r,g,b } manual bg color, null = auto corner sampling
+// selection
+let selRect = null, isDragging = false, dragStart = {x:0,y:0};
+// transform mode
+let inTransformMode = false;
+let pendingCropRect = null;   // { x,y,w,h } in source px, before transform
+
+const stageWrap   = document.getElementById('stage-wrap');
+const stageCanvas = document.getElementById('stage-canvas');
+const uiCanvas    = document.getElementById('ui-canvas');
+const resultCanvas= document.getElementById('result-canvas');
+const stageCtx    = stageCanvas.getContext('2d');
+const uiCtx       = uiCanvas.getContext('2d');
+const resultCtx   = resultCanvas.getContext('2d');
+
+/* ── file load ── */
+stageWrap.addEventListener('click', () => { if (!srcImage && !inTransformMode) document.getElementById('file-input').click(); });
+stageWrap.addEventListener('dragover', e => e.preventDefault());
+stageWrap.addEventListener('drop', e => { e.preventDefault(); const f=e.dataTransfer.files[0]; if(f?.type.startsWith('image/')) loadFile(f); });
+document.getElementById('file-input').addEventListener('change', e => { if(e.target.files[0]) loadFile(e.target.files[0]); });
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      srcImage = img;
+      document.getElementById('drop-hint').style.display='none';
+      backToSelect();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function fitStage() {
+  const ww=stageWrap.clientWidth, wh=stageWrap.clientHeight||320;
+  const r=Math.min(ww/srcImage.width, wh/srcImage.height, 1);
+  const dw=Math.round(srcImage.width*r), dh=Math.round(srcImage.height*r);
+  stageCanvas.width=uiCanvas.width=dw;
+  stageCanvas.height=uiCanvas.height=dh;
+  stageCanvas.style.cssText=uiCanvas.style.cssText=`width:${dw}px;height:${dh}px;`;
+  stageCtx.drawImage(srcImage,0,0,dw,dh);
+  return {dw,dh,r};
+}
+
+/* ── selection mode ── */
+function backToSelect() {
+  inTransformMode=false;
+  selRect=null; pendingCropRect=null;
+  pickedColor=null;
+  document.getElementById('picked-color-swatch').style.background='#ccc8c0';
+  document.getElementById('picked-color-val').textContent='自動';
+  document.getElementById('transform-panel').style.display='none';
+  document.getElementById('mode-bar').style.display='flex';
+  document.getElementById('stage-label').textContent='01 — 框選目標區域';
+  document.getElementById('mode-hint').textContent='拖曳框選後確認裁切';
+  document.getElementById('confirm-btn').disabled=true;
+  document.getElementById('clear-btn').disabled=true;
+  fitStage();
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+  uiCanvas.style.cursor='crosshair';
+}
+
+function getPos(e) {
+  const r=uiCanvas.getBoundingClientRect();
+  const clientX=e.touches?e.touches[0].clientX:(e.clientX);
+  const clientY=e.touches?e.touches[0].clientY:(e.clientY);
+  return { x:clientX-r.left, y:clientY-r.top };
+}
+
+uiCanvas.addEventListener('mousedown', onDown);
+uiCanvas.addEventListener('mousemove', onMove);
+uiCanvas.addEventListener('mouseup', onUp);
+uiCanvas.addEventListener('mouseleave', onUp);
+uiCanvas.addEventListener('touchstart', e=>{ e.preventDefault(); onDown(e); },{passive:false});
+uiCanvas.addEventListener('touchmove', e=>{ e.preventDefault(); onMove(e); },{passive:false});
+uiCanvas.addEventListener('touchend', e=>{ e.preventDefault(); onUp(e); },{passive:false});
+
+function onDown(e) {
+  if (!srcImage||inTransformMode) return;
+  isDragging=true; dragStart=getPos(e); selRect=null;
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+}
+function onMove(e) {
+  if (!isDragging) return;
+  const pos=getPos(e);
+  drawSelOverlay(pos);
+}
+function onUp(e) {
+  if (!isDragging) return; isDragging=false;
+  const pos=getPos(e.changedTouches?{clientX:e.changedTouches[0].clientX,clientY:e.changedTouches[0].clientY}:e);
+  const x=Math.min(dragStart.x,pos.x), y=Math.min(dragStart.y,pos.y);
+  const w=Math.abs(pos.x-dragStart.x), h=Math.abs(pos.y-dragStart.y);
+  if (w>8&&h>8) {
+    selRect={x,y,w,h};
+    document.getElementById('confirm-btn').disabled=false;
+    document.getElementById('clear-btn').disabled=false;
+    document.getElementById('mode-hint').textContent='選取完成，確認裁切';
+  }
+}
+
+function drawSelOverlay(pos) {
+  const cw=uiCanvas.width, ch=uiCanvas.height;
+  const x=Math.min(dragStart.x,pos.x), y=Math.min(dragStart.y,pos.y);
+  const w=Math.abs(pos.x-dragStart.x), h=Math.abs(pos.y-dragStart.y);
+  uiCtx.clearRect(0,0,cw,ch);
+  // darken outside
+  uiCtx.fillStyle='rgba(0,0,0,0.45)';
+  uiCtx.fillRect(0,0,cw,ch);
+  uiCtx.clearRect(x,y,w,h);
+  // border
+  uiCtx.strokeStyle='rgba(255,255,255,0.9)'; uiCtx.lineWidth=1; uiCtx.setLineDash([4,3]);
+  uiCtx.strokeRect(x+0.5,y+0.5,w-1,h-1); uiCtx.setLineDash([]);
+  // corners
+  const cs=10; uiCtx.strokeStyle='white'; uiCtx.lineWidth=2;
+  [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(([cx,cy])=>{
+    uiCtx.beginPath();
+    uiCtx.moveTo(cx-(cx===x?0:cs),cy); uiCtx.lineTo(cx+(cx===x?cs:0),cy);
+    uiCtx.moveTo(cx,cy-(cy===y?0:cs)); uiCtx.lineTo(cx,cy+(cy===y?cs:0));
+    uiCtx.stroke();
+  });
+}
+
+function clearSel() {
+  selRect=null;
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+  document.getElementById('confirm-btn').disabled=true;
+  document.getElementById('clear-btn').disabled=true;
+  document.getElementById('mode-hint').textContent='拖曳框選後確認裁切';
+}
+
+/* ── confirm crop → enter transform mode ── */
+function confirmCrop() {
+  if (!selRect||!srcImage) return;
+  const sx=srcImage.width/stageCanvas.width, sy=srcImage.height/stageCanvas.height;
+  pendingCropRect = {
+    x:Math.round(selRect.x*sx), y:Math.round(selRect.y*sy),
+    w:Math.round(selRect.w*sx), h:Math.round(selRect.h*sy)
+  };
+  inTransformMode=true;
+  document.getElementById('mode-bar').style.display='none';
+  document.getElementById('transform-panel').style.display='block';
+  document.getElementById('stage-label').textContent='02 — 調整變形（調整後裁正輸出）';
+  uiCanvas.style.cursor='default';
+  resetTransform();
+  renderTransformPreview();
+}
+
+/* ── transform preview on stage ── */
+function renderTransformPreview() {
+  if (!pendingCropRect||!srcImage) return;
+  const rotate = parseFloat(document.getElementById('t-rotate').value)||0;
+  const skewX  = parseFloat(document.getElementById('t-skewx').value)||0;
+  const skewY  = parseFloat(document.getElementById('t-skewy').value)||0;
+  document.getElementById('t-rotate-val').textContent = rotate.toFixed(1)+'°';
+  document.getElementById('t-skewx-val').textContent  = skewX.toFixed(1)+'°';
+  document.getElementById('t-skewy-val').textContent  = skewY.toFixed(1)+'°';
+
+  // draw full image dimmed
+  const {dw,dh} = fitStage();
+  stageCtx.drawImage(srcImage,0,0,dw,dh);
+  // dim full image
+  stageCtx.fillStyle='rgba(0,0,0,0.5)';
+  stageCtx.fillRect(0,0,dw,dh);
+
+  // draw crop region with transform, bright
+  const sx=srcImage.width/dw, sy=srcImage.height/dh;
+  const cr=pendingCropRect;
+  const dispX=cr.x/sx, dispY=cr.y/sy, dispW=cr.w/sx, dispH=cr.h/sy;
+  const cx=dispX+dispW/2, cy=dispY+dispH/2;
+
+  stageCtx.save();
+  stageCtx.translate(cx,cy);
+  stageCtx.rotate(rotate*Math.PI/180);
+  stageCtx.transform(1, Math.tan(skewY*Math.PI/180), Math.tan(skewX*Math.PI/180), 1, 0, 0);
+  stageCtx.drawImage(srcImage, cr.x, cr.y, cr.w, cr.h, -dispW/2, -dispH/2, dispW, dispH);
+
+  // show inner-rectangle crop outline
+  const maxR = Math.max(Math.abs(rotate), Math.abs(skewX)*0.5, Math.abs(skewY)*0.5);
+  const shrink = maxR * Math.PI / 180;
+  const iw = dispW * (1 - Math.abs(Math.sin(shrink))*0.6);
+  const ih = dispH * (1 - Math.abs(Math.sin(shrink))*0.6);
+  stageCtx.strokeStyle='rgba(255,255,255,0.8)';
+  stageCtx.lineWidth=1.5; stageCtx.setLineDash([4,3]);
+  stageCtx.strokeRect(-iw/2,-ih/2,iw,ih);
+  stageCtx.setLineDash([]);
+  stageCtx.restore();
+
+  uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+}
+
+function updateTransform() { renderTransformPreview(); }
+
+function resetTransform() {
+  document.getElementById('t-rotate').value=0;
+  document.getElementById('t-skewx').value=0;
+  document.getElementById('t-skewy').value=0;
+  renderTransformPreview();
+}
+
+/* ── apply transform → produce croppedCanvas (straight rectangle) ── */
+function applyTransformAndCrop() {
+  if (!pendingCropRect||!srcImage) return;
+  const rotate = parseFloat(document.getElementById('t-rotate').value)||0;
+  const skewX  = parseFloat(document.getElementById('t-skewx').value)||0;
+  const skewY  = parseFloat(document.getElementById('t-skewy').value)||0;
+  const cr = pendingCropRect;
+
+  // draw crop region with transforms onto a temp canvas
+  const tmp = document.createElement('canvas');
+  tmp.width=cr.w; tmp.height=cr.h;
+  const tctx=tmp.getContext('2d');
+  tctx.save();
+  tctx.translate(cr.w/2, cr.h/2);
+  tctx.rotate(rotate*Math.PI/180);
+  tctx.transform(1, Math.tan(skewY*Math.PI/180), Math.tan(skewX*Math.PI/180), 1, 0, 0);
+  tctx.drawImage(srcImage, cr.x, cr.y, cr.w, cr.h, -cr.w/2, -cr.h/2, cr.w, cr.h);
+  tctx.restore();
+
+  // compute largest axis-aligned inner rectangle after rotation
+  const rad = Math.abs(rotate) * Math.PI/180;
+  const skXrad = Math.abs(skewX) * Math.PI/180 * 0.5;
+  const skYrad = Math.abs(skewY) * Math.PI/180 * 0.5;
+  const totalRad = rad + skXrad + skYrad;
+  let innerW, innerH;
+  if (totalRad === 0) {
+    innerW=cr.w; innerH=cr.h;
+  } else {
+    // largest inscribed rectangle for rotated image
+    const w=cr.w, h=cr.h;
+    const sinA=Math.sin(totalRad), cosA=Math.cos(totalRad);
+    if (w/h > 1) {
+      innerW = (w*cosA - h*sinA) / (cosA*cosA - sinA*sinA);
+      innerH = innerW * h/w;
+    } else {
+      innerH = (h*cosA - w*sinA) / (cosA*cosA - sinA*sinA);
+      innerW = innerH * w/h;
+    }
+    innerW = Math.max(10, Math.min(cr.w*0.95, Math.abs(innerW)));
+    innerH = Math.max(10, Math.min(cr.h*0.95, Math.abs(innerH)));
+  }
+
+  // crop centre of transformed image to innerW x innerH
+  croppedCanvas = document.createElement('canvas');
+  croppedCanvas.width  = Math.round(innerW);
+  croppedCanvas.height = Math.round(innerH);
+  const offX = (cr.w-innerW)/2, offY = (cr.h-innerH)/2;
+  croppedCanvas.getContext('2d').drawImage(tmp, offX, offY, innerW, innerH, 0, 0, innerW, innerH);
+
+  document.getElementById('crop-size-lbl').textContent = Math.round(innerW)+' × '+Math.round(innerH)+' px';
+  document.getElementById('preview-empty').style.display='none';
+  document.getElementById('save-btn').disabled=false;
+  document.getElementById('dl-btn').disabled=false;
+  applyEdits();
+
+  // return to select mode so user can re-crop if needed
+  backToSelect();
+  toast('裁切完成，可繼續框選或調整右側色調');
+}
+
+/* ── manual color picking ── */
+function startPicking() {
+  if (!croppedCanvas) { toast('請先裁切圖片再點選背景色'); return; }
+  isPicking = true;
+  document.getElementById('pick-btn').textContent = '⏳ 點圖片上的背景...';
+  document.getElementById('pick-btn').style.background = 'var(--text)';
+  document.getElementById('pick-btn').style.color = 'var(--surface)';
+  document.getElementById('pick-hint').style.display = 'block';
+  // show crosshair on result canvas
+  resultCanvas.style.cursor = 'crosshair';
+  resultCanvas.addEventListener('click', onPickColor, { once: true });
+}
+
+function onPickColor(e) {
+  isPicking = false;
+  resultCanvas.style.cursor = 'default';
+  document.getElementById('pick-btn').textContent = '🎯 點選背景色';
+  document.getElementById('pick-btn').style.background = '';
+  document.getElementById('pick-btn').style.color = '';
+  document.getElementById('pick-hint').style.display = 'none';
+  const rect = resultCanvas.getBoundingClientRect();
+  const scaleX = resultCanvas.width / rect.width;
+  const scaleY = resultCanvas.height / rect.height;
+  const x = Math.round((e.clientX - rect.left) * scaleX);
+  const y = Math.round((e.clientY - rect.top) * scaleY);
+  // sample from croppedCanvas (before edits) for accurate color
+  const ctx = croppedCanvas.getContext('2d');
+  const px = ctx.getImageData(Math.min(x, croppedCanvas.width-1), Math.min(y, croppedCanvas.height-1), 1, 1).data;
+  pickedColor = { r: px[0], g: px[1], b: px[2] };
+  const hex = '#' + [px[0],px[1],px[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+  document.getElementById('picked-color-swatch').style.background = hex;
+  document.getElementById('picked-color-val').textContent = hex;
+  toast('已取樣背景色 ' + hex + '，調整容忍度看效果');
+  // auto-enable bg removal
+  if (!bgOn) { bgOn = true; document.getElementById('bg-toggle').className = 'toggle on'; }
+  applyEdits();
+}
+
+function clearPickedColor() {
+  pickedColor = null;
+  document.getElementById('picked-color-swatch').style.background = '#ccc8c0';
+  document.getElementById('picked-color-val').textContent = '自動';
+  if (croppedCanvas) applyEdits();
+  toast('已清除，改回自動取樣角落顏色');
+}
+
+/* ── bg removal ── */
+function toggleBg() {
+  bgOn=!bgOn;
+  document.getElementById('bg-toggle').className='toggle'+(bgOn?' on':'');
+  applyEdits();
+}
+function setMethod(tab) {
+  document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active'); bgMethod=tab.dataset.m; applyEdits();
+}
+
+function floodFillRemove(data, w, h, tol, feather) {
+  const visited=new Uint8Array(w*h), alpha=new Float32Array(w*h).fill(1), queue=[];
+  let bgR, bgG, bgB;
+  if (pickedColor) {
+    bgR = pickedColor.r; bgG = pickedColor.g; bgB = pickedColor.b;
+  } else {
+    const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+    bgR=0; bgG=0; bgB=0;
+    corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
+    bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  }
+  const dist=i=>{ const dr=data[i]-bgR,dg=data[i+1]-bgG,db=data[i+2]-bgB; return Math.sqrt(dr*dr+dg*dg+db*db); };
+  for (let x=0;x<w;x++) { queue.push(x); queue.push((h-1)*w+x); }
+  for (let y=1;y<h-1;y++) { queue.push(y*w); queue.push(y*w+w-1); }
+  queue.forEach(p=>{ visited[p]=1; });
+  while (queue.length) {
+    const p=queue.shift(), x=p%w, y=Math.floor(p/w);
+    if (dist(p*4)<tol) {
+      alpha[p]=0;
+      [p-1,p+1,p-w,p+w].forEach((n,i)=>{ if((i===0&&x>0)||(i===1&&x<w-1)||(i===2&&y>0)||(i===3&&y<h-1)) { if(!visited[n]) { visited[n]=1; queue.push(n); } } });
+    }
+  }
+  applyFeather(data,alpha,w,h,feather);
+}
+
+function colorThresholdRemove(data,w,h,tol,feather) {
+  let bgR, bgG, bgB;
+  if (pickedColor) {
+    bgR = pickedColor.r; bgG = pickedColor.g; bgB = pickedColor.b;
+  } else {
+    const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+    bgR=0; bgG=0; bgB=0;
+    corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
+    bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  }
+  const alpha=new Float32Array(w*h);
+  for (let i=0;i<w*h;i++) {
+    const pi=i*4,dr=data[pi]-bgR,dg=data[pi+1]-bgG,db=data[pi+2]-bgB;
+    const d=Math.sqrt(dr*dr+dg*dg+db*db);
+    alpha[i]=d<tol?Math.max(0,d/tol):1;
+  }
+  applyFeather(data,alpha,w,h,feather);
+}
+
+function edgePreserveRemove(data,w,h,tol,feather) {
+  const orig=new Uint8ClampedArray(data);
+  colorThresholdRemove(data,w,h,tol,0);
+  for (let y=1;y<h-1;y++) for (let x=1;x<w-1;x++) {
+    const i=(y*w+x)*4;
+    const ex=Math.abs(orig[i+4]-orig[i-4])+Math.abs(orig[i+1+4]-orig[i+1-4]);
+    const ey=Math.abs(orig[i+w*4]-orig[i-w*4])+Math.abs(orig[i+1+w*4]-orig[i+1-w*4]);
+    if (ex+ey>60) data[i+3]=255;
+  }
+  if (feather>0) {
+    const alpha=new Float32Array(w*h);
+    for (let i=0;i<w*h;i++) alpha[i]=data[i*4+3]/255;
+    applyFeather(data,alpha,w,h,feather);
+  }
+}
+
+function applyFeather(data,alpha,w,h,feather) {
+  if (feather<=0) { for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(alpha[i]*255); return; }
+  const a2=new Float32Array(alpha);
+  const r=feather;
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
+    const p=y*w+x; let sum=0,cnt=0;
+    for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
+      const ny=y+dy,nx=x+dx;
+      if (ny>=0&&ny<h&&nx>=0&&nx<w) { sum+=alpha[ny*w+nx]; cnt++; }
+    }
+    a2[p]=sum/cnt;
+  }
+  for (let i=0;i<w*h;i++) data[i*4+3]=Math.round(a2[i]*255);
+}
+
+function applySharpenKernel(data,w,h,amount) {
+  if (!amount) return;
+  const copy=new Uint8ClampedArray(data), k=amount*0.3;
+  const kernel=[-k,-k,-k,-k,1+8*k,-k,-k,-k,-k];
+  for (let y=1;y<h-1;y++) for (let x=1;x<w-1;x++) {
+    const idx=(y*w+x)*4;
+    for (let c=0;c<3;c++) {
+      let v=0,ki=0;
+      for (let dy=-1;dy<=1;dy++) for (let dx=-1;dx<=1;dx++,ki++) v+=copy[((y+dy)*w+(x+dx))*4+c]*kernel[ki];
+      data[idx+c]=Math.max(0,Math.min(255,Math.round(v)));
+    }
+  }
+}
+
+/* ── main apply edits ── */
+function applyEdits() {
+  if (!croppedCanvas) return;
+  const brightness=parseInt(document.getElementById('brightness').value);
+  const contrast  =parseInt(document.getElementById('contrast').value);
+  const saturation=parseInt(document.getElementById('saturation').value);
+  const sharpen   =parseInt(document.getElementById('sharpen').value);
+  const tol       =parseInt(document.getElementById('tolerance').value);
+  const feather   =parseInt(document.getElementById('feather').value);
+  document.getElementById('brightness-val').textContent=brightness;
+  document.getElementById('contrast-val').textContent=contrast;
+  document.getElementById('saturation-val').textContent=saturation;
+  document.getElementById('sharpen-val').textContent=sharpen;
+  document.getElementById('tolerance-val').textContent=tol;
+  document.getElementById('feather-val').textContent=feather;
+
+  const w=croppedCanvas.width, h=croppedCanvas.height;
+  const imgData=croppedCanvas.getContext('2d').getImageData(0,0,w,h);
+  const d=imgData.data;
+
+  if (bgOn) {
+    if (bgMethod==='flood') floodFillRemove(d,w,h,tol,feather);
+    else if (bgMethod==='color') colorThresholdRemove(d,w,h,tol,feather);
+    else edgePreserveRemove(d,w,h,tol,feather);
+  }
+
+  const bAdj=(brightness-100)*2.55, cAdj=contrast/100, sAdj=saturation/100;
+  for (let i=0;i<d.length;i+=4) {
+    if (bgOn&&d[i+3]===0) continue;
+    let r=d[i],g=d[i+1],b=d[i+2];
+    r+=bAdj; g+=bAdj; b+=bAdj;
+    r=(r-128)*cAdj+128; g=(g-128)*cAdj+128; b=(b-128)*cAdj+128;
+    const lum=0.299*r+0.587*g+0.114*b;
+    r=lum+(r-lum)*sAdj; g=lum+(g-lum)*sAdj; b=lum+(b-lum)*sAdj;
+    d[i]=Math.max(0,Math.min(255,Math.round(r)));
+    d[i+1]=Math.max(0,Math.min(255,Math.round(g)));
+    d[i+2]=Math.max(0,Math.min(255,Math.round(b)));
+  }
+  if (sharpen) applySharpenKernel(d,w,h,sharpen);
+
+  resultCanvas.width=w; resultCanvas.height=h;
+  resultCtx.putImageData(imgData,0,0);
+}
+
+function resetColor() {
+  ['brightness','contrast','saturation','sharpen'].forEach(id=>{ document.getElementById(id).value=id==='saturation'?100:id==='brightness'?100:id==='contrast'?100:0; });
+  document.getElementById('brightness').value=100;
+  document.getElementById('contrast').value=100;
+  document.getElementById('saturation').value=100;
+  document.getElementById('sharpen').value=0;
+  applyEdits();
+}
+
+/* ── download ── */
+function downloadResult() {
+  if (!resultCanvas.width) return;
+  const name=(document.getElementById('item-name').value||'box-element').replace(/\s+/g,'_');
+  const dataUrl=resultCanvas.toDataURL('image/png');
+  try { const a=document.createElement('a'); a.href=dataUrl; a.download=name+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e) {}
+  showDlPanel(dataUrl, name);
+}
+function showDlPanel(dataUrl, name) {
+  let p=document.getElementById('dl-panel');
+  if (!p) { p=document.createElement('div'); p.id='dl-panel'; p.style.cssText='position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:0.5px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:14px;z-index:500;'; document.body.appendChild(p); }
+  p.innerHTML=`<span style="font-family:'Noto Sans TC',sans-serif;font-size:9px;color:var(--text-muted);">右鍵另存 or 點下載：</span><img src="${dataUrl}" style="height:48px;border:0.5px solid var(--border);border-radius:3px;background:#dedad2;"><a href="${dataUrl}" download="${name}.png" style="font-family:'Noto Sans TC',sans-serif;font-size:10px;padding:6px 16px;background:var(--text);color:var(--surface);border-radius:2px;text-decoration:none;">↓ ${name}.png</a><span onclick="document.getElementById('dl-panel').remove()" style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--text-hint);cursor:pointer;margin-left:auto;">✕</span>`;
+}
+
+/* ── save to Supabase ── */
+async function saveToCollection() {
+  if (!resultCanvas.width) return;
+  const nick = getNick();
+  if (!nick) { openNickModal(); toast('請先設定暱稱再存入'); return; }
+  const name = document.getElementById('item-name').value.trim() || '未命名元素';
+  const btn  = document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='儲存中⋯';
+  try {
+    await sbFetch('/rest/v1/elements', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        name,
+        uploader: nick,
+        image_data: resultCanvas.toDataURL('image/png'),
+        tags: 'icon'
+      })
+    });
+    toast('已存入 Archive — '+name);
+    document.getElementById('item-name').value='';
+  } catch(err) {
+    toast('儲存失敗：'+err.message);
+  } finally {
+    btn.disabled=false; btn.textContent='存入 Archive';
+  }
+}
+
+/* ── load collection ── */
+let collFilter='all';
+async function loadCollection() {
+  document.getElementById('coll-grid').innerHTML='<div class="coll-loading">載入中⋯</div>';
+  try {
+    const data = await sbFetch('/rest/v1/elements?select=*&order=created_at.desc');
+    renderCollection(data);
+  } catch(err) {
+    document.getElementById('coll-grid').innerHTML='<div class="coll-empty">載入失敗：'+err.message+'</div>';
+  }
+}
+
+function renderCollection(data) {
+  const filtered = collFilter==='all' ? data : data.filter(i=>collFilter==='icon'?i.tags==='icon':i.tags!=='icon');
+  document.getElementById('coll-meta').textContent=data.length+' items';
+  const grid=document.getElementById('coll-grid');
+  grid.innerHTML='';
+  if (!filtered.length) { grid.innerHTML='<div class="coll-empty">目前是空的。</div>'; return; }
+  filtered.forEach(item=>{
+    const d=new Date(item.created_at);
+    const dateStr=d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
+    const card=document.createElement('div'); card.className='coll-card';
+    card.style.cursor='pointer';
+    card.innerHTML=`
+      <div class="coll-card-img">
+        <div class="coll-checker"></div>
+        <img src="${item.image_data}" alt="${item.name}" loading="lazy">
+      </div>
+      <div class="coll-card-body">
+        <div class="coll-card-name">${item.name}</div>
+        <div class="coll-card-uploader">👤 ${item.uploader}</div>
+        <div class="coll-card-date">${dateStr}</div>
+      </div>`;
+    card.addEventListener('click', () => openLightbox(item));
+    grid.appendChild(card);
+  });
+}
+
+function openLightbox(item) {
+  const d = new Date(item.created_at);
+  const dateStr = d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const fname = item.name.replace(/\s+/g,'_');
+  document.getElementById('lb-img').src = item.image_data;
+  document.getElementById('lb-img').alt = item.name;
+  document.getElementById('lb-name').textContent = item.name;
+  document.getElementById('lb-meta').innerHTML = `👤 ${item.uploader}&emsp;📅 ${dateStr}`;
+  const dlBtn = document.getElementById('lb-dl');
+  dlBtn.href = item.image_data;
+  dlBtn.download = fname+'.png';
+  dlBtn.textContent = '↓ 下載 '+fname+'.png';
+  document.getElementById('lb-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lb-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function setCTab(tab) {
+  document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active'); collFilter=tab.dataset.f;
+  loadCollection();
+}
+
+/* ── toast ── */
+let toastTimer;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+/* init: prompt nickname on first visit */
+if (!getNick()) setTimeout(openNickModal, 800);
+</script>
+</body>
+</html>
