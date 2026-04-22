@@ -368,6 +368,28 @@ input[type=range] { flex: 1; height: 2px; accent-color: var(--text); cursor: poi
             <div class="method-tab" data-m="color" onclick="setMethod(this)">色彩閾值</div>
             <div class="method-tab" data-m="edge" onclick="setMethod(this)">邊緣保留</div>
           </div>
+
+          <!-- manual color picker -->
+          <div style="border:0.5px solid var(--border-light);border-radius:4px;padding:10px 12px;background:var(--surface2);">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+              <span>手動指定背景色</span>
+              <span style="font-size:10px;color:var(--text-hint);">點圖片上的背景區域</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button id="pick-btn" class="btn" onclick="startPicking()" style="font-size:10px;padding:5px 12px;">
+                🎯 點選背景色
+              </button>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div id="picked-color-swatch" style="width:24px;height:24px;border-radius:3px;border:0.5px solid var(--border);background:#ccc8c0;flex-shrink:0;"></div>
+                <div id="picked-color-val" style="font-size:10px;color:var(--text-hint);font-family:'Noto Sans TC',sans-serif;">#ccc8c0</div>
+              </div>
+              <button class="btn" onclick="clearPickedColor()" style="font-size:10px;padding:5px 10px;">清除</button>
+            </div>
+            <div id="pick-hint" style="font-size:10px;color:var(--text-hint);margin-top:6px;display:none;">
+              ← 點左側圖片上的背景顏色
+            </div>
+          </div>
+
           <div class="slider-row">
             <div class="slider-lbl">容忍度<small>tolerance</small></div>
             <input type="range" id="tolerance" min="5" max="150" value="35" step="1" oninput="applyEdits()">
@@ -524,6 +546,8 @@ let srcImage = null;          // original image
 let croppedCanvas = null;     // result of crop+transform, fed into color pipeline
 let transformCanvas = null;   // live transform preview (before final apply)
 let bgOn = false, bgMethod = 'flood';
+let isPicking = false;
+let pickedColor = null;       // { r,g,b } manual bg color, null = auto corner sampling
 // selection
 let selRect = null, isDragging = false, dragStart = {x:0,y:0};
 // transform mode
@@ -573,6 +597,9 @@ function fitStage() {
 function backToSelect() {
   inTransformMode=false;
   selRect=null; pendingCropRect=null;
+  pickedColor=null;
+  document.getElementById('picked-color-swatch').style.background='#ccc8c0';
+  document.getElementById('picked-color-val').textContent='自動';
   document.getElementById('transform-panel').style.display='none';
   document.getElementById('mode-bar').style.display='flex';
   document.getElementById('stage-label').textContent='01 — 框選目標區域';
@@ -781,6 +808,52 @@ function applyTransformAndCrop() {
   toast('裁切完成，可繼續框選或調整右側色調');
 }
 
+/* ── manual color picking ── */
+function startPicking() {
+  if (!croppedCanvas) { toast('請先裁切圖片再點選背景色'); return; }
+  isPicking = true;
+  document.getElementById('pick-btn').textContent = '⏳ 點圖片上的背景...';
+  document.getElementById('pick-btn').style.background = 'var(--text)';
+  document.getElementById('pick-btn').style.color = 'var(--surface)';
+  document.getElementById('pick-hint').style.display = 'block';
+  // show crosshair on result canvas
+  resultCanvas.style.cursor = 'crosshair';
+  resultCanvas.addEventListener('click', onPickColor, { once: true });
+}
+
+function onPickColor(e) {
+  isPicking = false;
+  resultCanvas.style.cursor = 'default';
+  document.getElementById('pick-btn').textContent = '🎯 點選背景色';
+  document.getElementById('pick-btn').style.background = '';
+  document.getElementById('pick-btn').style.color = '';
+  document.getElementById('pick-hint').style.display = 'none';
+  const rect = resultCanvas.getBoundingClientRect();
+  const scaleX = resultCanvas.width / rect.width;
+  const scaleY = resultCanvas.height / rect.height;
+  const x = Math.round((e.clientX - rect.left) * scaleX);
+  const y = Math.round((e.clientY - rect.top) * scaleY);
+  // sample from croppedCanvas (before edits) for accurate color
+  const ctx = croppedCanvas.getContext('2d');
+  const px = ctx.getImageData(Math.min(x, croppedCanvas.width-1), Math.min(y, croppedCanvas.height-1), 1, 1).data;
+  pickedColor = { r: px[0], g: px[1], b: px[2] };
+  const hex = '#' + [px[0],px[1],px[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+  document.getElementById('picked-color-swatch').style.background = hex;
+  document.getElementById('picked-color-val').textContent = hex;
+  toast('已取樣背景色 ' + hex + '，調整容忍度看效果');
+  // auto-enable bg removal
+  if (!bgOn) { bgOn = true; document.getElementById('bg-toggle').className = 'toggle on'; }
+  applyEdits();
+}
+
+function clearPickedColor() {
+  pickedColor = null;
+  document.getElementById('picked-color-swatch').style.background = '#ccc8c0';
+  document.getElementById('picked-color-val').textContent = '自動';
+  if (croppedCanvas) applyEdits();
+  toast('已清除，改回自動取樣角落顏色');
+}
+
 /* ── bg removal ── */
 function toggleBg() {
   bgOn=!bgOn;
@@ -794,10 +867,15 @@ function setMethod(tab) {
 
 function floodFillRemove(data, w, h, tol, feather) {
   const visited=new Uint8Array(w*h), alpha=new Float32Array(w*h).fill(1), queue=[];
-  const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
-  let bgR=0,bgG=0,bgB=0;
-  corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
-  bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  let bgR, bgG, bgB;
+  if (pickedColor) {
+    bgR = pickedColor.r; bgG = pickedColor.g; bgB = pickedColor.b;
+  } else {
+    const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+    bgR=0; bgG=0; bgB=0;
+    corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
+    bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  }
   const dist=i=>{ const dr=data[i]-bgR,dg=data[i+1]-bgG,db=data[i+2]-bgB; return Math.sqrt(dr*dr+dg*dg+db*db); };
   for (let x=0;x<w;x++) { queue.push(x); queue.push((h-1)*w+x); }
   for (let y=1;y<h-1;y++) { queue.push(y*w); queue.push(y*w+w-1); }
@@ -813,10 +891,15 @@ function floodFillRemove(data, w, h, tol, feather) {
 }
 
 function colorThresholdRemove(data,w,h,tol,feather) {
-  const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
-  let bgR=0,bgG=0,bgB=0;
-  corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
-  bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  let bgR, bgG, bgB;
+  if (pickedColor) {
+    bgR = pickedColor.r; bgG = pickedColor.g; bgB = pickedColor.b;
+  } else {
+    const corners=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+    bgR=0; bgG=0; bgB=0;
+    corners.forEach(([cx,cy])=>{ const i=(cy*w+cx)*4; bgR+=data[i];bgG+=data[i+1];bgB+=data[i+2]; });
+    bgR=Math.round(bgR/4); bgG=Math.round(bgG/4); bgB=Math.round(bgB/4);
+  }
   const alpha=new Float32Array(w*h);
   for (let i=0;i<w*h;i++) {
     const pi=i*4,dr=data[pi]-bgR,dg=data[pi+1]-bgG,db=data[pi+2]-bgB;
